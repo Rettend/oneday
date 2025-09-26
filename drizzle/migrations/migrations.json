@@ -1,0 +1,10 @@
+[
+  {
+    "idx": 0,
+    "when": 1758887802916,
+    "tag": "0000_blushing_hemingway",
+    "sql": [
+      "CREATE TABLE `tests` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`created_at` integer\n);"
+    ]
+  }
+]

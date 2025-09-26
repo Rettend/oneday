@@ -3,15 +3,19 @@ import UnoCSS from 'unocss/vite'
 
 export default defineConfig({
   ssr: false,
-  server: {
-    preset: 'cloudflare-module',
-  },
-  middleware: 'src/middleware.ts',
   vite: {
     plugins: [UnoCSS()],
     optimizeDeps: {
-      exclude: ['@rttnd/gau'],
+      exclude: ['sqlocal'],
     },
-    ssr: { external: ['drizzle-orm'] },
+    worker: {
+      format: 'es',
+    },
+  },
+  server: {
+    preset: 'static',
+    routeRules: {
+      '/**': { headers: { 'Cross-Origin-Embedder-Policy': 'require-corp', 'Cross-Origin-Opener-Policy': 'same-origin' } },
+    },
   },
 })

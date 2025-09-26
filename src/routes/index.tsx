@@ -1,107 +1,101 @@
-import type { Provider } from '~/lib/auth'
-import { createMemo, For, Show } from 'solid-js'
-import { useAuth } from '~/lib/auth'
+import { createSignal, Show } from 'solid-js'
+import { ModeToggle } from '~/components/ModeToggle'
+import { Button } from '~/components/ui/button'
+import { TextField, TextFieldDescription, TextFieldErrorMessage, TextFieldLabel, TextFieldTextArea } from '~/components/ui/text-field'
 
 export default function Home() {
-  const auth = useAuth()
-
-  const linkedProviders = createMemo<Provider[]>(() => {
-    return (auth.session().accounts?.map(a => a.provider) ?? []) as Provider[]
-  })
-
-  const unlinkedProviders = createMemo<Provider[]>(() => {
-    const all = (auth.session().providers ?? [])
-    const linked = new Set(linkedProviders())
-    return all.filter(p => !linked.has(p))
-  })
+  const [note, setNote] = createSignal('')
+  const [touched, setTouched] = createSignal(false)
 
   return (
-    <main class="text-emerald-100 font-mono p-6 bg-zinc-900 min-h-screen relative">
-      <div class="bg-[linear-gradient(transparent_1px,#18181b_1px),linear-gradient(90deg,transparent_1px,#18181b_1px)] bg-[size:32px_32px] opacity-20 pointer-events-none inset-0 absolute" />
-      <div class="mx-auto max-w-3xl relative space-y-6">
-        <Show
-          when={auth.session().user}
-          fallback={(
-            <div class="flex flex-col gap-4 items-center">
-              <span class="text-lg tracking-wider">Sign In</span>
-              <div class="flex gap-4 justify-center">
-                <button
-                  class="px-4 py-2 border border-emerald-900/30 rounded bg-zinc-800 flex gap-2 transition-all duration-200 items-center justify-center hover:border-emerald-800/50 hover:bg-zinc-700"
-                  onClick={() => auth.signIn('github')}
-                >
-                  <div class="i-ph:github-logo size-5" />
-                  <p>GitHub</p>
-                </button>
-                <button
-                  class="px-4 py-2 border border-emerald-900/30 rounded bg-zinc-800 flex gap-2 transition-all duration-200 items-center justify-center hover:border-emerald-800/50 hover:bg-zinc-700"
-                  onClick={() => auth.signIn('google')}
-                >
-                  <div class="i-ph:google-logo-bold size-5" />
-                  <p>Google</p>
-                </button>
-                <button
-                  class="px-4 py-2 border border-emerald-900/30 rounded bg-zinc-800 flex gap-2 transition-all duration-200 items-center justify-center hover:border-emerald-800/50 hover:bg-zinc-700"
-                  onClick={() => auth.signIn('microsoft')}
-                >
-                  <div class="i-mdi:microsoft size-5" />
-                  <p>Microsoft</p>
-                </button>
-              </div>
-            </div>
-          )}
-        >
-          <div class="p-4 border border-emerald-900/30 rounded bg-zinc-800/50 flex items-center justify-between backdrop-blur">
-            <h2 class="text-xl tracking-tight">
-              &gt;
-              {auth.session().user?.name}
-            </h2>
-            <button
-              class="text-sm tracking-wider px-4 py-2 border border-red-900/30 rounded bg-red-900/20 transition-all duration-200 hover:border-red-800/50 hover:bg-red-900/40"
-              onClick={() => auth.signOut()}
-            >
-              /logout
-            </button>
-          </div>
-          <div class="space-y-4">
-            <div>
-              <h3 class="text-lg tracking-wider mb-2">Linked Accounts</h3>
-              <div class="flex gap-4">
-                <For each={linkedProviders()}>
-                  {provider => (
-                    <div class="px-4 py-2 border border-emerald-900/30 rounded bg-zinc-800 flex gap-2 items-center justify-center">
-                      <div classList={{ 'i-ph:github-logo': provider === 'github', 'i-ph:google-logo-bold': provider === 'google', 'i-mdi:microsoft': provider === 'microsoft' }} class="size-5" />
-                      <p class="capitalize">{provider}</p>
-                      <button
-                        class="i-ph:x-bold transition-colors hover:text-red-500"
-                        aria-label="Unlink account"
-                        onClick={() => auth.unlinkAccount(provider)}
-                      />
-                    </div>
-                  )}
-                </For>
-              </div>
-            </div>
-            <Show when={unlinkedProviders().length > 0}>
-              <div>
-                <h3 class="text-lg tracking-wider mb-2">Link More Accounts</h3>
-                <div class="flex gap-4">
-                  <For each={unlinkedProviders()}>
-                    {provider => (
-                      <button
-                        class="px-4 py-2 border border-emerald-900/30 rounded bg-zinc-800 flex gap-2 transition-all duration-200 items-center justify-center hover:border-emerald-800/50 hover:bg-zinc-700"
-                        onClick={() => auth.linkAccount(provider)}
-                      >
-                        <div classList={{ 'i-ph:github-logo': provider === 'github', 'i-ph:google-logo-bold': provider === 'google', 'i-mdi:microsoft': provider === 'microsoft' }} class="size-5" />
-                        <p class="capitalize">{provider}</p>
-                      </button>
-                    )}
-                  </For>
-                </div>
-              </div>
+    <main class="min-h-[100dvh] from-background to-muted/30 bg-gradient-to-b">
+      <section class="container mx-auto max-w-3xl flex flex-col gap-8 px-4 py-12">
+        <header class="flex flex-col gap-2 text-center">
+          <h1 class="text-4xl font-extrabold tracking-tight md:text-5xl">
+            Build your day like a game
+          </h1>
+          <p class="text-muted-foreground">
+            Turn todos into quests, earn XP, unlock achievements.
+          </p>
+          <ModeToggle />
+        </header>
+
+        <div class="border rounded-xl bg-card p-5 shadow-sm">
+          <TextField class="w-full">
+            <TextFieldLabel>What should we turn into quests?</TextFieldLabel>
+            <TextFieldDescription>
+              Paste thoughts freely — it saves on blur to minimize clicks.
+            </TextFieldDescription>
+            <TextFieldTextArea
+              rows={5}
+              placeholder="e.g., Ship onboarding, study TypeScript, gym 45m, clean inbox…"
+              onBlur={(e) => {
+                setTouched(true)
+                setNote(e.currentTarget.value.trim())
+              }}
+            />
+            <Show when={touched() && !note()}>
+              <TextFieldErrorMessage>Please add a short note.</TextFieldErrorMessage>
             </Show>
+          </TextField>
+
+          <div class="mt-4 flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">
+              {note() ? `${note().length} characters` : 'No input yet'}
+            </span>
+            <Button disabled={!note()}>
+              <span class="i-ph-sparkle-duotone" />
+              Generate quests
+            </Button>
           </div>
-        </Show>
-      </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="border rounded-xl bg-card p-4 shadow-sm">
+            <div class="flex items-center gap-3">
+              <span class="i-ph-trophy-duotone text-3xl text-amber-500" />
+              <div>
+                <p class="font-semibold">First Steps</p>
+                <p class="text-xs text-muted-foreground">Rarity: Bronze • Tier I</p>
+              </div>
+            </div>
+            <p class="mt-3 text-sm text-muted-foreground">
+              Complete your first quest. Reward: 50 XP.
+            </p>
+            <div class="mt-4 h-2 w-full rounded-full bg-muted">
+              <div class="h-2 w-1/5 rounded-full bg-primary" />
+            </div>
+          </div>
+
+          <div class="border rounded-xl bg-card p-4 shadow-sm">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="i-ph-sword-duotone text-2xl text-primary" />
+                <p class="font-semibold">Quest Preview</p>
+              </div>
+              <span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">+120 XP</span>
+            </div>
+            <ul class="mt-3 text-sm space-y-2">
+              <li class="flex items-center gap-2">
+                <span class="i-ph-check-circle-duotone text-green-500" />
+                Outline onboarding checklist
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="i-ph-check-circle-duotone text-green-500" />
+                Study TS utility types 30m
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="i-ph-check-circle-duotone text-green-500" />
+                Inbox to zero (15m)
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <footer class="text-center text-xs text-muted-foreground">
+          v0 design preview — no navbar yet.
+        </footer>
+      </section>
     </main>
   )
 }

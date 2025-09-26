@@ -1,22 +1,32 @@
 // @refresh reload
-import { AuthProvider } from '@rttnd/gau/client/solid'
-import { Router } from '@solidjs/router'
+import { MetaProvider, Title } from '@solidjs/meta'
+import { createAsync, Router } from '@solidjs/router'
 import { FileRoutes } from '@solidjs/start/router'
-import { Suspense } from 'solid-js'
-import { clientEnv } from './env/client'
-import '@unocss/reset/tailwind.css'
+import { Show, Suspense } from 'solid-js'
+import { db } from './server/db'
+import { RootStoreProvider } from './stores'
 import 'virtual:uno.css'
+import '@fontsource-variable/josefin-sans'
 
 export default function App() {
+  const connected = createAsync(async () => db.connect())
+
   return (
-    <AuthProvider baseUrl={clientEnv.VITE_API_URL}>
-      <Router
-        root={props => (
-          <Suspense>{props.children}</Suspense>
-        )}
-      >
-        <FileRoutes />
-      </Router>
-    </AuthProvider>
+    <Router
+      root={props => (
+        <MetaProvider>
+          <Title>Oneday</Title>
+          <RootStoreProvider>
+            <Suspense>
+              <Show when={connected()}>
+                {props.children}
+              </Show>
+            </Suspense>
+          </RootStoreProvider>
+        </MetaProvider>
+      )}
+    >
+      <FileRoutes />
+    </Router>
   )
 }
