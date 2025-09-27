@@ -90,7 +90,7 @@ export default function Home() {
         </div>
 
         <footer class="text-xs text-muted-foreground text-center">
-          v0 design preview — no navbar yet.
+          v0 design preview
         </footer>
       </section>
     </main>
