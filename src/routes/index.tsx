@@ -1,5 +1,4 @@
 import { createSignal, Show } from 'solid-js'
-import { ModeToggle } from '~/components/ModeToggle'
 import { Button } from '~/components/ui/button'
 import { TextField, TextFieldDescription, TextFieldErrorMessage, TextFieldLabel, TextFieldTextArea } from '~/components/ui/text-field'
 
@@ -8,19 +7,18 @@ export default function Home() {
   const [touched, setTouched] = createSignal(false)
 
   return (
-    <main class="min-h-[100dvh] from-background to-muted/30 bg-gradient-to-b">
-      <section class="container mx-auto max-w-3xl flex flex-col gap-8 px-4 py-12">
-        <header class="flex flex-col gap-2 text-center">
-          <h1 class="text-4xl font-extrabold tracking-tight md:text-5xl">
+    <main class="bg-[radial-gradient(520px_520px_at_0_0,oklch(var(--primary)_/_0.15)_9.29%,transparent_100%)] bg-background min-h-100dvh">
+      <section class="mx-auto px-4 py-12 container flex flex-col gap-8 max-w-3xl">
+        <header class="text-center flex flex-col gap-2">
+          <h1 class="text-4xl tracking-tight font-extrabold md:text-5xl">
             Build your day like a game
           </h1>
           <p class="text-muted-foreground">
             Turn todos into quests, earn XP, unlock achievements.
           </p>
-          <ModeToggle />
         </header>
 
-        <div class="border rounded-xl bg-card p-5 shadow-sm">
+        <div class="p-5 border rounded-xl bg-card shadow-sm">
           <TextField class="w-full">
             <TextFieldLabel>What should we turn into quests?</TextFieldLabel>
             <TextFieldDescription>
@@ -43,48 +41,47 @@ export default function Home() {
             <span class="text-xs text-muted-foreground">
               {note() ? `${note().length} characters` : 'No input yet'}
             </span>
-            <Button disabled={!note()}>
-              <span class="i-ph-sparkle-duotone" />
+            <Button class="bg-primary" variant="default">
               Generate quests
             </Button>
           </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-          <div class="border rounded-xl bg-card p-4 shadow-sm">
-            <div class="flex items-center gap-3">
+        <div class="gap-4 grid md:grid-cols-2">
+          <div class="p-4 border rounded-xl bg-card shadow-sm">
+            <div class="flex gap-3 items-center">
               <span class="i-ph-trophy-duotone text-3xl text-amber-500" />
               <div>
                 <p class="font-semibold">First Steps</p>
                 <p class="text-xs text-muted-foreground">Rarity: Bronze • Tier I</p>
               </div>
             </div>
-            <p class="mt-3 text-sm text-muted-foreground">
+            <p class="text-sm text-muted-foreground mt-3">
               Complete your first quest. Reward: 50 XP.
             </p>
-            <div class="mt-4 h-2 w-full rounded-full bg-muted">
-              <div class="h-2 w-1/5 rounded-full bg-primary" />
+            <div class="mt-4 rounded-full bg-muted h-2 w-full">
+              <div class="rounded-full bg-primary h-2 w-1/5" />
             </div>
           </div>
 
-          <div class="border rounded-xl bg-card p-4 shadow-sm">
+          <div class="p-4 border rounded-xl bg-card shadow-sm">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
+              <div class="flex gap-2 items-center">
                 <span class="i-ph-sword-duotone text-2xl text-primary" />
                 <p class="font-semibold">Quest Preview</p>
               </div>
-              <span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">+120 XP</span>
+              <span class="text-xs text-primary px-2 py-0.5 rounded-full bg-primary/10">+120 XP</span>
             </div>
-            <ul class="mt-3 text-sm space-y-2">
-              <li class="flex items-center gap-2">
+            <ul class="text-sm mt-3 space-y-2">
+              <li class="flex gap-2 items-center">
                 <span class="i-ph-check-circle-duotone text-green-500" />
                 Outline onboarding checklist
               </li>
-              <li class="flex items-center gap-2">
+              <li class="flex gap-2 items-center">
                 <span class="i-ph-check-circle-duotone text-green-500" />
                 Study TS utility types 30m
               </li>
-              <li class="flex items-center gap-2">
+              <li class="flex gap-2 items-center">
                 <span class="i-ph-check-circle-duotone text-green-500" />
                 Inbox to zero (15m)
               </li>
@@ -92,7 +89,7 @@ export default function Home() {
           </div>
         </div>
 
-        <footer class="text-center text-xs text-muted-foreground">
+        <footer class="text-xs text-muted-foreground text-center">
           v0 design preview — no navbar yet.
         </footer>
       </section>

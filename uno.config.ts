@@ -1,13 +1,13 @@
+import { presetShadcn } from '@rttnd/unocss-preset-shadcn'
 import {
   defineConfig,
   presetIcons,
   presetTypography,
-  presetWind3,
+  presetWind4,
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
 import presetAnimations from 'unocss-preset-animations'
-import { presetShadcn } from 'unocss-preset-shadcn'
 import { minify } from './src/utils'
 
 export default defineConfig({
@@ -21,33 +21,71 @@ export default defineConfig({
     transformerVariantGroup(),
   ],
   presets: [
+    presetWind4({
+      preflights: {
+        reset: true,
+      },
+    }),
     presetIcons({
       extraProperties: {
         'display': 'inline-block',
         'vertical-align': 'middle',
       },
     }),
-    presetWind3(),
     presetTypography(),
     presetAnimations(),
     presetShadcn({
       color: {
-        base: 'blue',
-        name: 'tealFusion',
-        light: {
-          'card': '210 40% 98.6%',
-          'primary': '190 90% 40%',
-          'primary-foreground': '0 0% 98%',
-          'destructive': '0 84.2% 60.2%',
-          'ring': '190 92% 42%',
-        },
+        base: 'rose',
         dark: {
-          'card': '217.2 32.6% 10.5%',
-          'primary': '190 85% 48%',
-          'primary-foreground': '210 40% 98%',
-          'accent-foreground': '210 40% 98%',
-          'destructive': '0 82.8% 60.6%',
-          'ring': '190 88% 46%',
+          // 'background': '0.141 0.005 285.823',
+          'background': '0.1213 0.0322 270.57',
+          // 'foreground': '0.985 0 0',
+          'foreground': '0.9771 0.0115 37.42',
+          // 'card': '0.21 0.006 285.885',
+          'card': '0.17 0.02 278',
+          // 'card-foreground': '0.985 0 0',
+          'card-foreground': '0.97 0.013 290',
+          // 'popover': '0.21 0.006 285.885',
+          'popover': '0.16 0.02 280',
+          // 'popover-foreground': '0.985 0 0',
+          'popover-foreground': '0.97 0.013 290',
+          // 'primary': '0.645 0.246 16.439',
+          'primary': '0.925 0.0397 39.3',
+          // 'primary-foreground': '0.969 0.015 12.422',
+          'primary-foreground': '0.1213 0.0322 270.57',
+          // 'secondary': '0.274 0.006 286.033',
+          'secondary': '0.2988 0.0342 286.54',
+          // 'secondary-foreground': '0.985 0 0',
+          'secondary-foreground': '0.925 0.0397 39.3',
+          // 'muted': '0.274 0.006 286.033',
+          'muted': '0.23 0.01 288',
+          // 'muted-foreground': '0.705 0.015 286.067',
+          'muted-foreground': '0.7 0.015 295',
+          // 'accent': '0.274 0.006 286.033',
+          'accent': '0.2988 0.0342 286.54',
+          // 'accent-foreground': '0.985 0 0',
+          'accent-foreground': '0.925 0.0397 39.3',
+          // 'destructive': '0.704 0.191 22.216',
+          'destructive': '0.64 0.2 22',
+          // 'destructive-foreground': '0.985 0 0',
+          'destructive-foreground': '0.97 0.01 290',
+          // 'border': '1 0 0 / 10%',
+          'border': '0.8 0.02 290 / 12%',
+          // 'input': '1 0 0 / 15%',
+          'input': '0.8 0.02 290 / 18%',
+          // 'ring': '0.645 0.246 16.439',
+          'ring': '0.925 0.0397 39.3',
+          // 'chart-1': '0.488 0.243 264.376',
+          'chart-1': '0.72 0.06 300',
+          // 'chart-2': '0.696 0.17 162.48',
+          'chart-2': '0.75 0.06 330',
+          // 'chart-3': '0.769 0.188 70.08',
+          'chart-3': '0.74 0.05 180',
+          // 'chart-4': '0.627 0.265 303.9',
+          'chart-4': '0.78 0.06 40',
+          // 'chart-5': '0.645 0.246 16.439',
+          'chart-5': '0.76 0.05 160',
         },
       },
     }),
@@ -91,7 +129,7 @@ export default defineConfig({
     pipeline: {
       include: [
         /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
-        "(components|src)/**/*.{js,ts}",
+        '**/*.{js,ts}',
       ],
     },
   },

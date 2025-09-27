@@ -1,6 +1,5 @@
 import type { ParentProps } from 'solid-js'
 import type { Store } from 'solid-js/store'
-import type { Mode } from '~/lib/constants'
 import { makePersisted, storageSync } from '@solid-primitives/storage'
 import { createContext, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
@@ -9,7 +8,6 @@ interface UIState {
 }
 
 interface UILocalState {
-  mode: Mode
 }
 
 type UIStoreState = UIState & {
@@ -17,7 +15,6 @@ type UIStoreState = UIState & {
 }
 
 interface UIStoreActions {
-  setMode: (mode: Mode) => void
 }
 
 type StoreContextType = [Store<UIState>, Store<UILocalState>, UIStoreActions]
@@ -28,18 +25,14 @@ export function UIStoreProvider(props: ParentProps) {
   })
 
   const [baseLocal, setBaseLocal] = createStore<UILocalState>({
-    mode: 'system',
   })
-  const [local, setLocal] = makePersisted([baseLocal, setBaseLocal], {
+  const [local, _setLocal] = makePersisted([baseLocal, setBaseLocal], {
     name: 'UI',
     storage: window.localStorage,
     sync: storageSync,
   })
 
   const actions: UIStoreActions = {
-    setMode(mode: Mode) {
-      setLocal({ mode })
-    },
   }
 
   return (
