@@ -7,7 +7,7 @@ export default function Home() {
   const [touched, setTouched] = createSignal(false)
 
   return (
-    <main class="bg-[radial-gradient(520px_520px_at_0_0,oklch(var(--primary)_/_0.15)_9.29%,transparent_100%)] bg-background min-h-100dvh">
+    <main class="min-h-100dvh">
       <section class="mx-auto px-4 py-12 container flex flex-col gap-8 max-w-3xl">
         <header class="text-center flex flex-col gap-2">
           <h1 class="text-4xl tracking-tight font-extrabold md:text-5xl">

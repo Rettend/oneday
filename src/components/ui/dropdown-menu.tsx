@@ -13,7 +13,7 @@ const DropdownMenuGroup = DropdownMenuPrimitive.Group
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup
 
 const DropdownMenu: Component<DropdownMenuPrimitive.DropdownMenuRootProps> = (props) => {
-  return <DropdownMenuPrimitive.Root gutter={4} {...props} />
+  return <DropdownMenuPrimitive.Root gutter={4} modal={false} {...props} />
 }
 
 type DropdownMenuContentProps<T extends ValidComponent = 'div'>
