@@ -58,7 +58,7 @@ const Sidebar: Component = () => {
                               class={`rounded-full inline-flex gap-4 size-12 transition-all duration-200 items-center lg:pl-4 lg:pr-6 lg:h-12 lg:w-auto ${
                                 active()
                                   ? 'bg-primary/8 text-foreground ring-1 ring-primary/40 shadow-[0_0_16px_oklch(var(--primary)_/_0.35)] group-hover:bg-primary/12'
-                                  : 'text-foreground/80 group-hover:bg-primary/8'
+                                  : 'text-foreground/80 group-hover:bg-primary/8 group-hover:text-foreground/90'
                               }`}
                             >
                               {item.icon === 'i-ph-sword-duotone'
