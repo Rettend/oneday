@@ -28,8 +28,7 @@ export default function Achievements() {
         <h1 class="text-2xl tracking-tight font-semibold">Achievements</h1>
         <div class="text-xs text-muted-foreground">Choose achievements to add • give the LLM more context below</div>
       </header>
-
-      <div class="gap-4 grid lg:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="gap-4 grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
         <For each={items}>
           {a => (
             <AchievementCard

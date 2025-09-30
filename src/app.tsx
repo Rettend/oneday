@@ -23,7 +23,7 @@ export default function App() {
                 <div class="bg-[radial-gradient(520px_520px_at_50%_-20%,oklch(var(--primary)_/_0.15)_9.29%,transparent_100%)] bg-background min-h-100dvh">
                   <AppNavbar />
                   <div class="pl-20 pt-6 lg:pl-64">
-                    <div class="mx-auto px-4 py-6 container max-w-6xl">
+                    <div class="mx-auto px-4 py-6 container max-w-7xl">
                       {props.children}
                     </div>
                   </div>

@@ -38,6 +38,12 @@ function toRoman(n?: number) {
   }
 }
 
+function formatRarity(rarity: Rarity | undefined): string {
+  if (!rarity || rarity === 'placeholder')
+    return ''
+  return rarity.charAt(0).toUpperCase() + rarity.slice(1)
+}
+
 function themeFor(rarity: Rarity | undefined) {
   const r = rarity ?? 'placeholder'
   switch (r) {
@@ -48,7 +54,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-zinc-500/30',
         ring: 'ring-zinc-500/40',
         bar: 'bg-zinc-500',
-        pillText: 'text-zinc-600',
+        pillText: 'text-zinc-500',
         pillBg: 'bg-zinc-500/10',
       }
     case 'bronze':
@@ -68,7 +74,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-slate-500/30',
         ring: 'ring-slate-500/40',
         bar: 'bg-slate-500',
-        pillText: 'text-slate-600',
+        pillText: 'text-slate-500',
         pillBg: 'bg-slate-500/10',
       }
     case 'gold':
@@ -108,7 +114,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-indigo-500/30',
         ring: 'ring-indigo-500/40',
         bar: 'bg-indigo-500',
-        pillText: 'text-indigo-600',
+        pillText: 'text-indigo-500',
         pillBg: 'bg-indigo-500/10',
       }
     case 'rhodal':
@@ -118,7 +124,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-rose-600/30',
         ring: 'ring-rose-600/40',
         bar: 'bg-rose-600',
-        pillText: 'text-rose-700',
+        pillText: 'text-rose-600',
         pillBg: 'bg-gradient-to-r from-rose-600/10 to-fuchsia-600/10',
       }
     case 'nummite':
@@ -128,7 +134,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-sky-700/30',
         ring: 'ring-sky-700/35',
         bar: 'bg-sky-600',
-        pillText: 'text-sky-700',
+        pillText: 'text-sky-600',
         pillBg: 'bg-gradient-to-r from-neutral-900/10 to-sky-700/10',
       }
     case 'spessar':
@@ -138,7 +144,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-orange-600/30',
         ring: 'ring-orange-600/40',
         bar: 'bg-gradient-to-r from-orange-600 to-rose-600',
-        pillText: 'text-orange-700',
+        pillText: 'text-orange-600',
         pillBg: 'bg-gradient-to-r from-orange-600/10 to-rose-600/10',
       }
     case 'placeholder':
@@ -176,7 +182,7 @@ export const AchievementCard: Component<AchievementCardProps> = (props) => {
   const progress = createMemo(() => Math.max(0, Math.min(100, props.progress ?? 0)))
 
   return (
-    <Card class={cn('overflow-hidden', props.class)}>
+    <Card class={cn('overflow-hidden min-w-100', props.class)}>
       <CardHeader class="flex flex-row gap-4 items-start">
         <div class="relative">
           <div class={`text-primary rounded-full flex size-14 shadow-inner items-center justify-center ${t().frameBg}  ${t().shadow}`}>
@@ -187,9 +193,16 @@ export const AchievementCard: Component<AchievementCardProps> = (props) => {
         <div class="flex-1 min-w-0">
           <div class="flex gap-2 items-center justify-between">
             <CardTitle class="text-base truncate md:text-lg">{props.name}</CardTitle>
-            <Show when={props.xp !== undefined}>
-              <span class={cn('shrink-0 text-xs px-2 py-0.5 rounded-full', t().pillText, t().pillBg)}>+{props.xp} XP</span>
-            </Show>
+            <div class="flex shrink-0 gap-1.5 items-center">
+              <Show when={formatRarity(props.rarity)}>
+                <span class={cn('text-xs px-2 py-0.5 rounded-full font-medium', t().pillText, t().pillBg)}>
+                  {formatRarity(props.rarity)}
+                </span>
+              </Show>
+              <Show when={props.xp !== undefined}>
+                <span class={cn('text-xs px-2 py-0.5 rounded-full', t().pillText, t().pillBg)}>+{props.xp} XP</span>
+              </Show>
+            </div>
           </div>
           <CardDescription class="mt-1 line-clamp-2">
             {props.description}
