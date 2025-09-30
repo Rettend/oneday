@@ -334,7 +334,7 @@ const AchievementCardDetails: Component<AchievementCardDetailsProps> = (props) =
   return (
     <CardContent class={cn('flex flex-col gap-4', props.class)}>
       <div class="text-xs text-muted-foreground tracking-wide font-semibold uppercase">
-        Variant paths
+        Variants
       </div>
       <div class="flex flex-col gap-2">
         <For each={props.variants}>
@@ -348,11 +348,15 @@ const AchievementCardDetails: Component<AchievementCardDetailsProps> = (props) =
               >
                 <div class="flex flex-col gap-1">
                   <div class="flex gap-2 items-center">
-                    <span class={cn('text-xs font-semibold uppercase tracking-wide', variantTheme.pillText)}>{formatRarity(variant.rarity) || 'Variant'}</span>
-                    <span class="text-xs text-muted-foreground">{variant.title}</span>
-                    <Show when={variant.xp !== undefined}>
-                      <span class={cn('ml-auto text-xs px-2 py-0.5 rounded-full font-medium', variantTheme.pillText, variantTheme.pillBg)}>+{variant.xp}% XP</span>
-                    </Show>
+                    <span class="text-base text-primary font-bold">{variant.title}</span>
+                    <div class="ml-auto inline-flex gap-1.5 items-center">
+                      <span class={cn('text-xs px-2 py-0.5 rounded-full font-medium', variantTheme.pillText, variantTheme.pillBg)}>
+                        {formatRarity(variant.rarity) || 'Variant'}
+                      </span>
+                      <Show when={variant.xp !== undefined}>
+                        <span class={cn('text-xs px-2 py-0.5 rounded-full font-medium', variantTheme.pillText, variantTheme.pillBg)}>+{variant.xp}% XP</span>
+                      </Show>
+                    </div>
                   </div>
                   <p class="text-sm text-muted-foreground leading-relaxed">
                     {variant.requirement}
