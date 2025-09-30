@@ -123,11 +123,11 @@ function themeFor(rarity: Rarity | undefined) {
       }
     case 'nummite':
       return {
-        icon: 'text-neutral-700',
-        frameBg: 'bg-gradient-to-br from-neutral-800/25 to-sky-700/15',
-        shadow: 'shadow-neutral-900/30',
+        icon: 'text-sky-700',
+        frameBg: 'bg-gradient-to-br from-neutral-700/25 to-sky-700/15',
+        shadow: 'shadow-sky-700/30',
         ring: 'ring-sky-700/35',
-        bar: 'bg-[linear-gradient(to_right,var(--colors-neutral-800)_0%,var(--colors-neutral-800)_80%,var(--colors-sky-800)_100%)]',
+        bar: 'bg-sky-600',
         pillText: 'text-sky-700',
         pillBg: 'bg-gradient-to-r from-neutral-900/10 to-sky-700/10',
       }
@@ -202,7 +202,7 @@ export const AchievementCard: Component<AchievementCardProps> = (props) => {
         </div>
         <div class="text-xs text-muted-foreground mt-2 flex items-center justify-between">
           <span>{progress()}%</span>
-          <span class="capitalize">{props.rarity ?? 'placeholder'}</span>
+          <span>99/99</span>
         </div>
       </CardContent>
     </Card>
