@@ -1,6 +1,8 @@
-import type { Component } from 'solid-js'
-import { createMemo, Show } from 'solid-js'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import type { Accessor, Component, JSX, ParentComponent } from 'solid-js'
+import { createContext, createMemo, For, Show, useContext } from 'solid-js'
+import { IconChevronDown } from '~/components/icons'
+import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { cn } from '~/utils'
 
 export type Rarity
@@ -25,6 +27,14 @@ export interface AchievementCardProps {
   progress?: number // 0..100
   xp?: number
   class?: string
+  children?: JSX.Element
+}
+
+export interface AchievementVariant {
+  rarity: Rarity
+  title: string
+  requirement: string
+  xp?: number
 }
 
 function toRoman(n?: number) {
@@ -54,7 +64,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-zinc-500/30',
         ring: 'ring-zinc-500/40',
         bar: 'bg-zinc-500',
-        pillText: 'text-zinc-500',
+        pillText: 'text-zinc-400',
         pillBg: 'bg-zinc-500/10',
       }
     case 'bronze':
@@ -74,7 +84,7 @@ function themeFor(rarity: Rarity | undefined) {
         shadow: 'shadow-slate-500/30',
         ring: 'ring-slate-500/40',
         bar: 'bg-slate-500',
-        pillText: 'text-slate-500',
+        pillText: 'text-slate-400',
         pillBg: 'bg-slate-500/10',
       }
     case 'gold':
@@ -161,6 +171,24 @@ function themeFor(rarity: Rarity | undefined) {
   }
 }
 
+const AchievementCardContext = createContext<{
+  name: Accessor<string>
+  description: Accessor<string>
+  icon: Accessor<string>
+  rarity: Accessor<Rarity | undefined>
+  tier: Accessor<1 | 2 | 3 | 4 | 5 | undefined>
+  xp: Accessor<number | undefined>
+  progress: Accessor<number | undefined>
+  theme: Accessor<ReturnType<typeof themeFor>>
+} | null>(null)
+
+function useAchievementCardContext() {
+  const ctx = useContext(AchievementCardContext)
+  if (!ctx)
+    throw new Error('AchievementCard subcomponents must be used within <AchievementCard>')
+  return ctx
+}
+
 const DiamondTierBadge: Component<{ rarity: Rarity | undefined, tier?: 1 | 2 | 3 | 4 | 5 }> = (props) => {
   const t = createMemo(() => themeFor(props.rarity))
   const label = createMemo(() => toRoman(props.tier))
@@ -177,49 +205,235 @@ const DiamondTierBadge: Component<{ rarity: Rarity | undefined, tier?: 1 | 2 | 3
   )
 }
 
-export const AchievementCard: Component<AchievementCardProps> = (props) => {
-  const t = createMemo(() => themeFor(props.rarity))
-  const progress = createMemo(() => Math.max(0, Math.min(100, props.progress ?? 0)))
+const AchievementCardRoot: ParentComponent<AchievementCardProps> = (props) => {
+  const theme = createMemo(() => themeFor(props.rarity))
+  const progress = createMemo(() => props.progress)
+  const context = {
+    name: () => props.name,
+    description: () => props.description,
+    icon: () => props.icon,
+    rarity: () => props.rarity,
+    tier: () => props.tier,
+    xp: () => props.xp,
+    progress,
+    theme,
+  }
 
   return (
-    <Card class={cn('overflow-hidden min-w-100', props.class)}>
-      <CardHeader class="flex flex-row gap-4 items-start">
-        <div class="relative">
-          <div class={`text-primary rounded-full flex size-14 shadow-inner items-center justify-center ${t().frameBg}  ${t().shadow}`}>
-            <span class={cn(props.icon, 'size-8', t().icon)} />
-          </div>
-          <DiamondTierBadge rarity={props.rarity} tier={props.tier} />
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex gap-2 items-center justify-between">
-            <CardTitle class="text-base truncate md:text-lg">{props.name}</CardTitle>
-            <div class="flex shrink-0 gap-1.5 items-center">
-              <Show when={formatRarity(props.rarity)}>
-                <span class={cn('text-xs px-2 py-0.5 rounded-full font-medium', t().pillText, t().pillBg)}>
-                  {formatRarity(props.rarity)}
-                </span>
-              </Show>
-              <Show when={props.xp !== undefined}>
-                <span class={cn('text-xs px-2 py-0.5 rounded-full', t().pillText, t().pillBg)}>+{props.xp} XP</span>
-              </Show>
-            </div>
-          </div>
-          <CardDescription class="mt-1 line-clamp-2">
-            {props.description}
-          </CardDescription>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div class="mt-1 rounded-full bg-muted h-2 w-full overflow-hidden">
-          <div class={cn('h-2 rounded-full transition-width duration-500', t().bar)} style={{ width: `${progress()}%` }} />
-        </div>
-        <div class="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-          <span>{progress()}%</span>
-          <span>99/99</span>
-        </div>
-      </CardContent>
-    </Card>
+    <AchievementCardContext.Provider value={context}>
+      <Card class={cn('overflow-hidden min-w-100', props.class)}>
+        {props.children}
+      </Card>
+    </AchievementCardContext.Provider>
   )
 }
 
+interface AchievementCardHeaderProps {
+  description?: string
+  aside?: JSX.Element
+  class?: string
+  children?: JSX.Element
+}
+
+const AchievementCardHeader: Component<AchievementCardHeaderProps> = (props) => {
+  const ctx = useAchievementCardContext()
+  const t = ctx.theme
+  const rarity = createMemo(() => formatRarity(ctx.rarity()))
+  const description = createMemo(() => props.children ?? props.description ?? ctx.description())
+
+  return (
+    <CardHeader class={cn('flex flex-row gap-4 items-start', props.class)}>
+      <div class="relative">
+        <div class={cn('rounded-full flex size-14 shadow-inner items-center justify-center', t().frameBg, t().shadow)}>
+          <span class={cn(ctx.icon(), 'size-8', t().icon)} />
+        </div>
+        <DiamondTierBadge rarity={ctx.rarity()} tier={ctx.tier()} />
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex gap-2 items-center justify-between">
+          <CardTitle class="text-base truncate md:text-lg">{ctx.name()}</CardTitle>
+          <Show
+            when={props.aside}
+            fallback={(
+              <div class="flex shrink-0 gap-1.5 items-center">
+                <Show when={rarity()}>
+                  <span class={cn('text-xs px-2 py-0.5 rounded-full font-medium', t().pillText, t().pillBg)}>
+                    {rarity()}
+                  </span>
+                </Show>
+                <Show when={ctx.xp() !== undefined}>
+                  <span class={cn('text-xs px-2 py-0.5 rounded-full', t().pillText, t().pillBg)}>+{ctx.xp()} XP</span>
+                </Show>
+              </div>
+            )}
+          >
+            {props.aside}
+          </Show>
+        </div>
+        <Show when={description()}>
+          <CardDescription class="mt-1">
+            {description()}
+          </CardDescription>
+        </Show>
+      </div>
+    </CardHeader>
+  )
+}
+
+interface AchievementCardProgressProps {
+  value?: number
+  label?: JSX.Element | string
+  hint?: JSX.Element | string
+  class?: string
+}
+
+const AchievementCardProgress: Component<AchievementCardProgressProps> = (props) => {
+  const ctx = useAchievementCardContext()
+  const t = ctx.theme
+  const percent = createMemo(() => {
+    const raw = props.value ?? ctx.progress()
+    if (raw === undefined || raw === null)
+      return undefined
+    const value = Number(raw)
+    if (Number.isNaN(value))
+      return undefined
+    return Math.max(0, Math.min(100, value))
+  })
+  const hasPercent = createMemo(() => percent() !== undefined)
+
+  return (
+    <Show when={hasPercent()}>
+      <CardContent class={cn('pt-0', props.class)}>
+        <div class="mt-1 rounded-full bg-muted h-2 w-full overflow-hidden">
+          <div class={cn('h-2 rounded-full transition-width duration-500', t().bar)} style={{ width: `${percent() ?? 0}%` }} />
+        </div>
+        <div class="text-xs text-muted-foreground mt-2 flex items-center justify-between">
+          <span>{props.label ?? `${percent() ?? 0}%`}</span>
+          <Show
+            when={props.hint}
+            fallback={(
+              <Show when={ctx.xp() !== undefined}>
+                <span>+{ctx.xp()} XP</span>
+              </Show>
+            )}
+          >
+            {props.hint}
+          </Show>
+        </div>
+      </CardContent>
+    </Show>
+  )
+}
+
+interface AchievementCardDetailsProps {
+  variants: AchievementVariant[]
+  class?: string
+}
+
+const AchievementCardDetails: Component<AchievementCardDetailsProps> = (props) => {
+  return (
+    <CardContent class={cn('flex flex-col gap-4', props.class)}>
+      <div class="text-xs text-muted-foreground tracking-wide font-semibold uppercase">
+        Variant paths
+      </div>
+      <div class="flex flex-col gap-2">
+        <For each={props.variants}>
+          {(variant) => {
+            const variantTheme = themeFor(variant.rarity)
+            return (
+              <div
+                class={cn(
+                  'rounded-xl border border-border/70 bg-background/80 px-4 py-3 backdrop-blur-sm',
+                )}
+              >
+                <div class="flex flex-col gap-1">
+                  <div class="flex gap-2 items-center">
+                    <span class={cn('text-xs font-semibold uppercase tracking-wide', variantTheme.pillText)}>{formatRarity(variant.rarity) || 'Variant'}</span>
+                    <span class="text-xs text-muted-foreground">{variant.title}</span>
+                    <Show when={variant.xp !== undefined}>
+                      <span class={cn('ml-auto text-xs px-2 py-0.5 rounded-full font-medium', variantTheme.pillText, variantTheme.pillBg)}>+{variant.xp}% XP</span>
+                    </Show>
+                  </div>
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    {variant.requirement}
+                  </p>
+                </div>
+              </div>
+            )
+          }}
+        </For>
+      </div>
+    </CardContent>
+  )
+}
+
+interface AchievementCardActionsProps {
+  onAccept?: () => void
+  onReject?: () => void
+  onToggleDetails?: () => void
+  detailsOpen?: boolean
+  acceptLabel?: string
+  rejectLabel?: string
+  detailsLabel?: string
+  detailsId?: string
+  class?: string
+}
+
+const AchievementCardActions: Component<AchievementCardActionsProps> = (props) => {
+  return (
+    <CardFooter class={cn('flex flex-wrap items-center gap-2 p-3 pt-0', props.class)}>
+      <div class="rounded-full inline-flex ring-1 ring-border/60 overflow-hidden backdrop-blur-md">
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={props.onAccept}
+          disabled={!props.onAccept}
+          class="text-xs text-primary-foreground font-medium px-3 rounded-none bg-primary/90 h-8 hover:text-primary-foreground hover:bg-primary/75"
+        >
+          <span class="i-ph-check-bold size-4" />
+          {props.acceptLabel ?? 'Accept'}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={props.onReject}
+          disabled={!props.onReject}
+          class="text-xs text-primary font-medium px-3 rounded-none bg-primary/10 h-8 hover:text-primary hover:bg-primary/15"
+        >
+          <span class="i-ph-x-bold size-4" />
+          {props.rejectLabel ?? 'Reject'}
+        </Button>
+      </div>
+
+      <Show when={props.onToggleDetails}>
+        <Button
+          type="button"
+          size="sm"
+          variant="invisible"
+          onClick={props.onToggleDetails}
+          aria-expanded={props.detailsOpen ?? false}
+          aria-controls={props.detailsId}
+          class={cn(
+            'ml-auto inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80',
+            props.detailsOpen ? 'data-[open]:text-primary' : '',
+          )}
+        >
+          <span>Details</span>
+          <IconChevronDown class={cn('size-3.5 transition-transform duration-200', props.detailsOpen ? 'rotate-180' : '')} />
+        </Button>
+      </Show>
+    </CardFooter>
+  )
+}
+
+const AchievementCard = Object.assign(AchievementCardRoot, {
+  Header: AchievementCardHeader,
+  Progress: AchievementCardProgress,
+  Details: AchievementCardDetails,
+  Actions: AchievementCardActions,
+})
+
+export { AchievementCard, AchievementCardActions, AchievementCardDetails, AchievementCardHeader, AchievementCardProgress }
 export default AchievementCard

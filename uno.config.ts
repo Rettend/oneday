@@ -121,6 +121,16 @@ export default defineConfig({
           ::-webkit-scrollbar-corner { 
             display: none; 
           }
+
+          @keyframes collapsible-down {
+            from { height: 0; }
+            to { height: var(--kb-collapsible-content-height); }
+          }
+
+          @keyframes collapsible-up {
+            from { height: var(--kb-collapsible-content-height); }
+            to { height: 0; }
+          }
         `
       },
     },
