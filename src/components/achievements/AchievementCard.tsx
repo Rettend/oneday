@@ -16,7 +16,7 @@ export type Rarity
     | 'nummite'
     | 'spessar'
 
-interface AchievementCardProps {
+export interface AchievementCardProps {
   name: string
   description: string
   icon: string
@@ -134,7 +134,7 @@ function themeFor(rarity: Rarity | undefined) {
     case 'spessar':
       return {
         icon: 'text-orange-600',
-        frameBg: 'bg-gradient-to-br from-rose-600/20 to-orange-600/20',
+        frameBg: 'bg-gradient-to-bl from-rose-600/20 to-orange-600/20',
         shadow: 'shadow-orange-600/30',
         ring: 'ring-orange-600/40',
         bar: 'bg-gradient-to-r from-orange-600 to-rose-600',

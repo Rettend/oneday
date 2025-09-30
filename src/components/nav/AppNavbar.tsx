@@ -48,7 +48,7 @@ const Sidebar: Component = () => {
                           <A
                             href={item.href}
                             title={item.label}
-                            class="group inline-flex w-full items-center justify-center lg:justify-start"
+                            class="group rounded-full inline-flex w-full items-center justify-center lg:justify-start"
                             onMouseEnter={(e) => {
                               if (item.icon === 'i-ph-sword-duotone')
                                 e.currentTarget.classList.add('was-hovered')
