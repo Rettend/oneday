@@ -3,6 +3,7 @@ import { createSignal, For } from 'solid-js'
 import AchievementCard from '~/components/achievements/AchievementCard'
 import LLMInput from '~/components/chat/LLMInput'
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible'
+import { AchievementsLayout } from './(achievements)'
 
 interface AchievementDefinition extends AchievementCardProps {
   id: string
@@ -34,7 +35,7 @@ const ACHIEVEMENTS: AchievementDefinition[] = [
     xp: 50,
     variants: [
       { rarity: 'iron', title: 'Boot Sequence', requirement: 'Finish your very first tracked quest run from start to finish.', xp: 3 },
-      { rarity: 'bronze', title: 'Momentum Maker', requirement: 'Complete three starter quests in a single week and reflect on the wins.', xp: 5},
+      { rarity: 'bronze', title: 'Momentum Maker', requirement: 'Complete three starter quests in a single week and reflect on the wins.', xp: 5 },
       { rarity: 'silver', title: 'Stride Lock', requirement: 'Maintain a five-day streak of daily quest completions.', xp: 12 },
     ],
   },
@@ -164,7 +165,7 @@ const ACHIEVEMENTS: AchievementDefinition[] = [
   },
 ]
 
-export default function Achievements() {
+export default function AchievementsDiscover() {
   const [openId, setOpenId] = createSignal<string | null>(null)
 
   function handleSendLLMContext(message: string) {
@@ -192,51 +193,53 @@ export default function Achievements() {
   }
 
   return (
-    <section class="flex flex-col gap-4 relative">
-      <header class="flex items-center justify-between">
-        <h1 class="text-2xl tracking-tight font-semibold">Achievements</h1>
-        <div class="text-xs text-muted-foreground">Choose achievements to add</div>
-      </header>
-      <div class="gap-4 grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] items-start">
-        <For each={ACHIEVEMENTS}>
-          {(item) => {
-            const detailsId = `${item.id}-details`
-            const open = () => isOpen(detailsId)
-            return (
-              <Collapsible
-                open={open()}
-                onOpenChange={value => setOpen(detailsId, value)}
-                class="self-start"
-              >
-                <AchievementCard
-                  name={item.name}
-                  description={item.description}
-                  icon={item.icon}
-                  rarity={item.rarity}
-                  tier={item.tier}
-                  xp={item.xp}
-                  class="flex flex-col self-start"
+    <AchievementsLayout>
+      <section class="flex flex-col gap-4 relative">
+        <header class="flex min-h-12 items-center justify-between">
+          <h1 class="text-2xl tracking-tight font-semibold">Discover achievements</h1>
+          <div class="text-xs text-muted-foreground">Choose achievements to add</div>
+        </header>
+        <div class="gap-4 grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] items-start">
+          <For each={ACHIEVEMENTS}>
+            {(item) => {
+              const detailsId = `${item.id}-details`
+              const open = () => isOpen(detailsId)
+              return (
+                <Collapsible
+                  open={open()}
+                  onOpenChange={value => setOpen(detailsId, value)}
+                  class="self-start"
                 >
-                  <AchievementCard.Header />
-                  <AchievementCard.Actions
-                    onAccept={() => handleAccept(item.name)}
-                    onReject={() => handleReject(item.name)}
-                    onToggleDetails={() => toggleOpen(detailsId)}
-                    detailsOpen={open()}
-                    detailsId={detailsId}
-                  />
-                  <CollapsibleContent id={detailsId} class="mt-0">
-                    <AchievementCard.Details variants={item.variants} class="pt-0" />
-                  </CollapsibleContent>
-                </AchievementCard>
-              </Collapsible>
-            )
-          }}
-        </For>
-      </div>
+                  <AchievementCard
+                    name={item.name}
+                    description={item.description}
+                    icon={item.icon}
+                    rarity={item.rarity}
+                    tier={item.tier}
+                    xp={item.xp}
+                    class="flex flex-col self-start"
+                  >
+                    <AchievementCard.Header />
+                    <AchievementCard.Actions
+                      onAccept={() => handleAccept(item.name)}
+                      onReject={() => handleReject(item.name)}
+                      onToggleDetails={() => toggleOpen(detailsId)}
+                      detailsOpen={open()}
+                      detailsId={detailsId}
+                    />
+                    <CollapsibleContent id={detailsId} class="mt-0">
+                      <AchievementCard.Details variants={item.variants} class="pt-0" />
+                    </CollapsibleContent>
+                  </AchievementCard>
+                </Collapsible>
+              )
+            }}
+          </For>
+        </div>
 
-      <div class="h-28" />
-      <LLMInput onSend={handleSendLLMContext} />
-    </section>
+        <div class="h-28" />
+        <LLMInput onSend={handleSendLLMContext} />
+      </section>
+    </AchievementsLayout>
   )
 }

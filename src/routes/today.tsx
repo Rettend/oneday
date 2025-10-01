@@ -3,7 +3,6 @@ import type { DeadlineChipProps } from '~/components/todo/DeadlineChip'
 import { createMemo, For } from 'solid-js'
 import AchievementCard from '~/components/achievements/AchievementCard'
 import DeadlineChip from '~/components/todo/DeadlineChip'
-import LevelPill from '~/components/todo/LevelPill'
 import { Button } from '~/components/ui/button'
 
 export default function Today() {
@@ -32,12 +31,9 @@ export default function Today() {
     <section class="flex flex-col gap-4">
       <header class="flex gap-3 items-center justify-between">
         <h1 class="text-2xl tracking-tight font-semibold">Today</h1>
-        <div class="flex gap-3 items-center">
-          <LevelPill level={3} currentXp={60} nextLevelXp={120} />
-          <Button class="bg-primary" variant="default">
-            Generate quests
-          </Button>
-        </div>
+        <Button class="bg-primary" variant="default">
+          Generate quests
+        </Button>
       </header>
       <div class="gap-4 grid md:grid-cols-2">
         <For each={achievements()}>

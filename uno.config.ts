@@ -107,6 +107,84 @@ export default defineConfig({
             from { height: var(--kb-collapsible-content-height); }
             to { height: 0; }
           }
+
+          /* View Transitions */
+          @keyframes fade-in {
+            from { opacity: 0; }
+          }
+
+          @keyframes fade-out {
+            to { opacity: 0; }
+          }
+
+          @keyframes slide-from-right {
+            from {
+              opacity: 0;
+              transform: translateX(1rem);
+            }
+          }
+
+          @keyframes slide-from-left {
+            from {
+              opacity: 0;
+              transform: translateX(-1rem);
+            }
+          }
+
+          @keyframes slide-to-left {
+            to {
+              opacity: 0;
+              transform: translateX(-1rem);
+            }
+          }
+
+          @keyframes slide-to-right {
+            to {
+              opacity: 0;
+              transform: translateX(1rem);
+            }
+          }
+
+          /* Default page transition: subtle fade */
+          ::view-transition-old(root) {
+            animation: 180ms cubic-bezier(0.4, 0, 1, 1) both fade-out;
+          }
+
+          ::view-transition-new(root) {
+            animation: 220ms cubic-bezier(0, 0, 0.2, 1) both fade-in;
+          }
+
+          /* Achievements tab transitions: slide + fade */
+          .achievements-tab-content {
+            view-transition-name: achievements-content;
+          }
+
+          ::view-transition-old(achievements-content) {
+            animation: 200ms cubic-bezier(0.4, 0, 1, 1) both slide-to-left;
+          }
+
+          ::view-transition-new(achievements-content) {
+            animation: 280ms cubic-bezier(0, 0, 0.2, 1) both slide-from-right;
+          }
+
+          /* Explicit directions via attribute on <html> */
+          /* progress <= discover (direction = -1) */
+          html[data-achievements-direction="-1"]::view-transition-old(achievements-content) {
+            animation: 200ms cubic-bezier(0.4, 0, 1, 1) both slide-to-right;
+          }
+
+          html[data-achievements-direction="-1"]::view-transition-new(achievements-content) {
+            animation: 280ms cubic-bezier(0, 0, 0.2, 1) both slide-from-left;
+          }
+
+          /* progress => discover (direction = 1) */
+          html[data-achievements-direction="1"]::view-transition-old(achievements-content) {
+            animation: 200ms cubic-bezier(0.4, 0, 1, 1) both slide-to-left;
+          }
+
+          html[data-achievements-direction="1"]::view-transition-new(achievements-content) {
+            animation: 280ms cubic-bezier(0, 0, 0.2, 1) both slide-from-right;
+          }
         `
       },
     },

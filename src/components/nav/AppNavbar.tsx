@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 import { A, useLocation } from '@solidjs/router'
 import { For } from 'solid-js'
+import LevelPill from '~/components/todo/LevelPill'
 
 interface NavItem {
   href: string
@@ -78,6 +79,9 @@ const Sidebar: Component = () => {
                     </For>
                   </nav>
                   <div class="rounded-b-2xl h-8 pointer-events-none bottom-0 left-0 right-0 absolute from-background to-transparent bg-gradient-to-t lg:h-10" />
+                </div>
+                <div class="px-3 py-3">
+                  <LevelPill level={3} currentXp={60} nextLevelXp={120} href="/achievements/progress" />
                 </div>
                 <style>
                   {`
