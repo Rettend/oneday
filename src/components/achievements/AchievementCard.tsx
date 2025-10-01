@@ -1,6 +1,5 @@
 import type { Accessor, Component, JSX, ParentComponent } from 'solid-js'
 import { createContext, createMemo, For, Show, useContext } from 'solid-js'
-import { IconChevronDown } from '~/components/icons'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { cn } from '~/utils'
@@ -244,7 +243,7 @@ const AchievementCardHeader: Component<AchievementCardHeaderProps> = (props) => 
   return (
     <CardHeader class={cn('flex flex-row gap-4 items-start', props.class)}>
       <div class="relative">
-        <div class={cn('rounded-full flex size-14 shadow-inner items-center justify-center', t().frameBg, t().shadow)}>
+        <div class={`rounded-full flex size-14 shadow-inner items-center justify-center ${t().frameBg}  ${t().shadow}`}>
           <span class={cn(ctx.icon(), 'size-8', t().icon)} />
         </div>
         <DiamondTierBadge rarity={ctx.rarity()} tier={ctx.tier()} />
@@ -386,14 +385,14 @@ interface AchievementCardActionsProps {
 const AchievementCardActions: Component<AchievementCardActionsProps> = (props) => {
   return (
     <CardFooter class={cn('flex flex-wrap items-center gap-2 p-3 pt-0', props.class)}>
-      <div class="rounded-full inline-flex ring-1 ring-border/60 overflow-hidden backdrop-blur-md">
+      <div class="rounded-full bg-background/50 inline-flex ring-1 ring-border/60 overflow-hidden backdrop-blur-md">
         <Button
           type="button"
           size="sm"
           variant="ghost"
           onClick={props.onAccept}
           disabled={!props.onAccept}
-          class="text-xs text-primary-foreground font-medium px-3 rounded-none bg-primary/90 h-8 hover:text-primary-foreground hover:bg-primary/75"
+          class="text-xs text-primary font-medium px-3 rounded-none bg-background/40 h-8 hover:bg-primary/10"
         >
           <span class="i-ph-check-bold size-4" />
           {props.acceptLabel ?? 'Accept'}
@@ -404,7 +403,7 @@ const AchievementCardActions: Component<AchievementCardActionsProps> = (props) =
           variant="ghost"
           onClick={props.onReject}
           disabled={!props.onReject}
-          class="text-xs text-primary font-medium px-3 rounded-none bg-primary/10 h-8 hover:text-primary hover:bg-primary/15"
+          class="text-xs text-primary font-medium px-3 rounded-none bg-background/40 h-8 hover:bg-primary/10"
         >
           <span class="i-ph-x-bold size-4" />
           {props.rejectLabel ?? 'Reject'}
@@ -425,7 +424,10 @@ const AchievementCardActions: Component<AchievementCardActionsProps> = (props) =
           )}
         >
           <span>Details</span>
-          <IconChevronDown class={cn('size-3.5 transition-transform duration-200', props.detailsOpen ? 'rotate-180' : '')} />
+          <span
+            aria-hidden="true"
+            class={cn('inline-flex items-center justify-center i-ph-caret-down-duotone size-3.5 transition-transform duration-200', props.detailsOpen ? 'rotate-180' : '')}
+          />
         </Button>
       </Show>
     </CardFooter>

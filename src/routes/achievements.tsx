@@ -195,7 +195,7 @@ export default function Achievements() {
     <section class="flex flex-col gap-4 relative">
       <header class="flex items-center justify-between">
         <h1 class="text-2xl tracking-tight font-semibold">Achievements</h1>
-        <div class="text-xs text-muted-foreground">Choose achievements to add • give the LLM more context below</div>
+        <div class="text-xs text-muted-foreground">Choose achievements to add</div>
       </header>
       <div class="gap-4 grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] items-start">
         <For each={ACHIEVEMENTS}>
