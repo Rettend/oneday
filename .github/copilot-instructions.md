@@ -42,5 +42,7 @@
 - UI components should expose polymorphic props and accept `class` for composition. Use `cn()` from `src/utils` for class merging and `cva` for variants.
 - IDs: use `uuidV7Base58()` from `src/utils`. Validate with `idSchema`.
 - Keep casing snake_case at the DB layer.
-- Prefer creating reusable components over hardcoding things in pages, always identify patterns and extract them.
+- Prefer creating reusable components over hardcoding UI elements in pages, always identify patterns and extract them.
+- When creating components, try using a modular approach with composable sub-components, ex.: `src/components/achievements/AchievementCard.tsx`
+- Prefer using `@solid-primitives/*` when possible.
 - Pretty much never use `createEffect`.

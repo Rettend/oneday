@@ -34,7 +34,7 @@ const Sidebar: Component = () => {
             <div class="rounded-2xl pointer-events-none inset-0 absolute from-primary/8 to-transparent via-transparent bg-gradient-to-b" />
             <div class="border border-border/80 rounded-2xl bg-background/55 h-full shadow-sm backdrop-blur-xl">
               <div class="flex flex-col h-full">
-                <A href="/" class="mx-1.5 mt-1.5 py-3 rounded-full inline-flex gap-3 items-center lg:px-4 hover:bg-background/70">
+                <A href="/" class="mx-1.5 mt-1.5 py-3 rounded-full inline-flex gap-3 items-center lg:px-4">
                   <span class="i-ph-sun-horizon-duotone text-primary mx-a shrink-0 size-7 lg:mx-0" />
                   <span class="text-lg font-semibold hidden lg:inline">Oneday</span>
                 </A>

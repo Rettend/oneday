@@ -65,6 +65,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-zinc-500',
         pillText: 'text-zinc-400',
         pillBg: 'bg-zinc-500/10',
+        glowFrom: 'from-zinc-500/18',
       }
     case 'bronze':
       return {
@@ -75,6 +76,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-orange-600',
         pillText: 'text-orange-700',
         pillBg: 'bg-orange-700/10',
+        glowFrom: 'from-orange-700/18',
       }
     case 'silver':
       return {
@@ -85,6 +87,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-slate-500',
         pillText: 'text-slate-400',
         pillBg: 'bg-slate-500/10',
+        glowFrom: 'from-slate-500/18',
       }
     case 'gold':
       return {
@@ -95,6 +98,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-amber-500',
         pillText: 'text-amber-600',
         pillBg: 'bg-amber-500/10',
+        glowFrom: 'from-amber-500/16',
       }
     case 'platinum':
       return {
@@ -105,6 +109,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-cyan-500',
         pillText: 'text-cyan-600',
         pillBg: 'bg-cyan-500/10',
+        glowFrom: 'from-cyan-500/16',
       }
     case 'emerald':
       return {
@@ -115,6 +120,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-emerald-500',
         pillText: 'text-emerald-600',
         pillBg: 'bg-emerald-500/10',
+        glowFrom: 'from-emerald-500/16',
       }
     case 'diamond':
       return {
@@ -125,6 +131,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-indigo-500',
         pillText: 'text-indigo-500',
         pillBg: 'bg-indigo-500/10',
+        glowFrom: 'from-indigo-500/16',
       }
     case 'rhodal':
       return {
@@ -135,6 +142,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-rose-600',
         pillText: 'text-rose-600',
         pillBg: 'bg-gradient-to-r from-rose-600/10 to-fuchsia-600/10',
+        glowFrom: 'from-rose-600/16',
       }
     case 'nummite':
       return {
@@ -145,6 +153,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-sky-600',
         pillText: 'text-sky-600',
         pillBg: 'bg-gradient-to-r from-neutral-900/10 to-sky-700/10',
+        glowFrom: 'from-sky-700/14',
       }
     case 'spessar':
       return {
@@ -155,6 +164,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-gradient-to-r from-orange-600 to-rose-600',
         pillText: 'text-orange-600',
         pillBg: 'bg-gradient-to-r from-orange-600/10 to-rose-600/10',
+        glowFrom: 'from-orange-600/16',
       }
     case 'placeholder':
     default:
@@ -166,6 +176,7 @@ function themeFor(rarity: Rarity | undefined) {
         bar: 'bg-primary',
         pillText: 'text-primary',
         pillBg: 'bg-primary/10',
+        glowFrom: 'from-primary/16',
       }
   }
 }
@@ -220,8 +231,11 @@ const AchievementCardRoot: ParentComponent<AchievementCardProps> = (props) => {
 
   return (
     <AchievementCardContext.Provider value={context}>
-      <Card class={cn('overflow-hidden min-w-100 bg-card/60', props.class)}>
-        {props.children}
+      <Card class={cn('relative overflow-hidden min-w-100 bg-card/60', props.class)}>
+        <div class={cn('pointer-events-none absolute inset-0 bg-[radial-gradient(520px_260px_at_0%_0%,var(--un-gradient-from),var(--un-gradient-to))] to-transparent', theme().glowFrom)} />
+        <div class="relative">
+          {props.children}
+        </div>
       </Card>
     </AchievementCardContext.Provider>
   )
