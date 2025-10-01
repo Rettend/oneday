@@ -195,7 +195,7 @@ const DiamondTierBadge: Component<{ rarity: Rarity | undefined, tier?: 1 | 2 | 3
     <Show when={label()}>
       <div class={cn('absolute -top-1.5 -right-1.5 size-6 rotate-45 rounded-4px border backdrop-blur-sm', t().ring, t().pillBg)}>
         <div class="flex h-full w-full items-center justify-center">
-          <span class={cn('block -rotate-45 text-10px h-3 font-semibold leading-none', t().pillText)}>
+          <span class={cn('block -rotate-45 text-sm h-3 font-semibold leading-none', t().pillText)}>
             {label()}
           </span>
         </div>
@@ -220,7 +220,7 @@ const AchievementCardRoot: ParentComponent<AchievementCardProps> = (props) => {
 
   return (
     <AchievementCardContext.Provider value={context}>
-      <Card class={cn('overflow-hidden min-w-100', props.class)}>
+      <Card class={cn('overflow-hidden min-w-100 bg-card/60', props.class)}>
         {props.children}
       </Card>
     </AchievementCardContext.Provider>
@@ -243,7 +243,7 @@ const AchievementCardHeader: Component<AchievementCardHeaderProps> = (props) => 
   return (
     <CardHeader class={cn('flex flex-row gap-4 items-start', props.class)}>
       <div class="relative">
-        <div class={`rounded-full flex size-14 shadow-inner items-center justify-center ${t().frameBg}  ${t().shadow}`}>
+        <div class={cn('rounded-full flex size-14 shadow-inner items-center justify-center', t().frameBg, t().shadow)}>
           <span class={cn(ctx.icon(), 'size-8', t().icon)} />
         </div>
         <DiamondTierBadge rarity={ctx.rarity()} tier={ctx.tier()} />

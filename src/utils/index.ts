@@ -1,12 +1,12 @@
 import type { ClassValue } from 'clsx'
 import bs58 from 'bs58'
 import { clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { unoMerge } from 'unocss-merge'
 import { v7 } from 'uuid'
 import { z } from 'zod'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return unoMerge(clsx(inputs))
 }
 
 export function minify(strings: TemplateStringsArray, ...values: any[]): string {
