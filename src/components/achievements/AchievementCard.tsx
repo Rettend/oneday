@@ -22,7 +22,7 @@ export interface AchievementCardProps {
   description: string
   icon: string
   rarity?: Rarity
-  tier?: 1 | 2 | 3 | 4 | 5
+  tier?: number
   progress?: number // 0..100
   xp?: number
   class?: string
@@ -47,6 +47,17 @@ function toRoman(n?: number) {
   }
 }
 
+function tierLabel(rarity: Rarity | undefined, tier?: number): string {
+  if (tier === undefined || tier === null)
+    return ''
+  const value = Math.max(1, Math.floor(Number(tier)))
+  if (Number.isNaN(value))
+    return ''
+  if (rarity === 'spessar' && value > 5)
+    return String(value)
+  return toRoman(value)
+}
+
 function formatRarity(rarity: Rarity | undefined): string {
   if (!rarity || rarity === 'placeholder')
     return ''
@@ -61,7 +72,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-zinc-500',
         frameBg: 'bg-zinc-500/15',
         shadow: 'shadow-zinc-500/30',
-        ring: 'ring-zinc-500/40',
+        border: 'border-zinc-500',
         bar: 'bg-zinc-500',
         pillText: 'text-zinc-400',
         pillBg: 'bg-zinc-500/10',
@@ -72,7 +83,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-orange-700',
         frameBg: 'bg-orange-700/15',
         shadow: 'shadow-orange-700/30',
-        ring: 'ring-orange-700/40',
+        border: 'border-orange-700',
         bar: 'bg-orange-600',
         pillText: 'text-orange-700',
         pillBg: 'bg-orange-700/10',
@@ -83,7 +94,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-slate-500',
         frameBg: 'bg-slate-500/15',
         shadow: 'shadow-slate-500/30',
-        ring: 'ring-slate-500/40',
+        border: 'border-slate-500',
         bar: 'bg-slate-500',
         pillText: 'text-slate-400',
         pillBg: 'bg-slate-500/10',
@@ -94,7 +105,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-amber-500',
         frameBg: 'bg-amber-500/15',
         shadow: 'shadow-amber-500/30',
-        ring: 'ring-amber-500/40',
+        border: 'border-amber-500',
         bar: 'bg-amber-500',
         pillText: 'text-amber-600',
         pillBg: 'bg-amber-500/10',
@@ -105,7 +116,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-cyan-500',
         frameBg: 'bg-cyan-500/15',
         shadow: 'shadow-cyan-500/30',
-        ring: 'ring-cyan-500/40',
+        border: 'border-cyan-500',
         bar: 'bg-cyan-500',
         pillText: 'text-cyan-600',
         pillBg: 'bg-cyan-500/10',
@@ -116,7 +127,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-emerald-500',
         frameBg: 'bg-emerald-500/15',
         shadow: 'shadow-emerald-500/30',
-        ring: 'ring-emerald-500/40',
+        border: 'border-emerald-500',
         bar: 'bg-emerald-500',
         pillText: 'text-emerald-600',
         pillBg: 'bg-emerald-500/10',
@@ -127,7 +138,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-indigo-500',
         frameBg: 'bg-indigo-500/15',
         shadow: 'shadow-indigo-500/30',
-        ring: 'ring-indigo-500/40',
+        border: 'border-indigo-500',
         bar: 'bg-indigo-500',
         pillText: 'text-indigo-500',
         pillBg: 'bg-indigo-500/10',
@@ -138,7 +149,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-rose-600',
         frameBg: 'bg-gradient-to-br from-rose-600/20 to-rose-600/30',
         shadow: 'shadow-rose-600/30',
-        ring: 'ring-rose-600/40',
+        border: 'border-rose-600',
         bar: 'bg-rose-600',
         pillText: 'text-rose-600',
         pillBg: 'bg-gradient-to-r from-rose-600/10 to-fuchsia-600/10',
@@ -149,18 +160,18 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-sky-700',
         frameBg: 'bg-gradient-to-br from-neutral-700/25 to-sky-700/15',
         shadow: 'shadow-sky-700/30',
-        ring: 'ring-sky-700/35',
+        border: 'border-sky-700',
         bar: 'bg-sky-600',
         pillText: 'text-sky-600',
         pillBg: 'bg-gradient-to-r from-neutral-900/10 to-sky-700/10',
-        glowFrom: 'from-sky-700/14',
+        glowFrom: 'from-sky-600/16',
       }
     case 'spessar':
       return {
         icon: 'text-orange-600',
         frameBg: 'bg-gradient-to-bl from-rose-600/20 to-orange-600/20',
         shadow: 'shadow-orange-600/30',
-        ring: 'ring-orange-600/40',
+        border: 'border-orange-600',
         bar: 'bg-gradient-to-r from-orange-600 to-rose-600',
         pillText: 'text-orange-600',
         pillBg: 'bg-gradient-to-r from-orange-600/10 to-rose-600/10',
@@ -172,7 +183,7 @@ function themeFor(rarity: Rarity | undefined) {
         icon: 'text-primary',
         frameBg: 'bg-primary/15',
         shadow: 'shadow-primary/30',
-        ring: 'ring-primary/40',
+        border: 'border-primary',
         bar: 'bg-primary',
         pillText: 'text-primary',
         pillBg: 'bg-primary/10',
@@ -181,15 +192,11 @@ function themeFor(rarity: Rarity | undefined) {
   }
 }
 
+type Theme = ReturnType<typeof themeFor>
+
 const AchievementCardContext = createContext<{
-  name: Accessor<string>
-  description: Accessor<string>
-  icon: Accessor<string>
-  rarity: Accessor<Rarity | undefined>
-  tier: Accessor<1 | 2 | 3 | 4 | 5 | undefined>
-  xp: Accessor<number | undefined>
-  progress: Accessor<number | undefined>
-  theme: Accessor<ReturnType<typeof themeFor>>
+  props: AchievementCardProps
+  theme: Accessor<Theme>
 } | null>(null)
 
 function useAchievementCardContext() {
@@ -199,14 +206,17 @@ function useAchievementCardContext() {
   return ctx
 }
 
-const DiamondTierBadge: Component<{ rarity: Rarity | undefined, tier?: 1 | 2 | 3 | 4 | 5 }> = (props) => {
+const DiamondTierBadge: Component<{ rarity: Rarity | undefined, tier?: number }> = (props) => {
   const t = createMemo(() => themeFor(props.rarity))
-  const label = createMemo(() => toRoman(props.tier))
+  const label = createMemo(() => tierLabel(props.rarity, props.tier))
   return (
     <Show when={label()}>
-      <div class={cn('absolute -top-1.5 -right-1.5 size-6 rotate-45 rounded-4px border backdrop-blur-sm', t().ring, t().pillBg)}>
+      <div
+        class={cn('absolute -top-1.5 -right-1.5 size-6 rotate-45 rounded-4px border backdrop-blur-sm', t().pillBg, t().border)}
+        style={{ '--un-border-opacity': '40%' }}
+      >
         <div class="flex h-full w-full items-center justify-center">
-          <span class={cn('block -rotate-45 text-sm h-3 font-semibold leading-none', t().pillText)}>
+          <span class={cn('block -rotate-45 text-base h-13px font-semibold leading-none', t().pillText)}>
             {label()}
           </span>
         </div>
@@ -217,21 +227,14 @@ const DiamondTierBadge: Component<{ rarity: Rarity | undefined, tier?: 1 | 2 | 3
 
 const AchievementCardRoot: ParentComponent<AchievementCardProps> = (props) => {
   const theme = createMemo(() => themeFor(props.rarity))
-  const progress = createMemo(() => props.progress)
-  const context = {
-    name: () => props.name,
-    description: () => props.description,
-    icon: () => props.icon,
-    rarity: () => props.rarity,
-    tier: () => props.tier,
-    xp: () => props.xp,
-    progress,
-    theme,
-  }
+  const context = { props, theme }
 
   return (
     <AchievementCardContext.Provider value={context}>
-      <Card class={cn('relative overflow-hidden min-w-100 bg-card/60', props.class)}>
+      <Card
+        class={cn('relative overflow-hidden min-w-100 bg-card/60', props.class, theme().border)}
+        style={{ '--un-border-opacity': '15%' }}
+      >
         <div class={cn('pointer-events-none absolute inset-0 bg-[radial-gradient(520px_260px_at_0%_0%,var(--un-gradient-from),var(--un-gradient-to))] to-transparent', theme().glowFrom)} />
         <div class="relative">
           {props.children}
@@ -251,20 +254,20 @@ interface AchievementCardHeaderProps {
 const AchievementCardHeader: Component<AchievementCardHeaderProps> = (props) => {
   const ctx = useAchievementCardContext()
   const t = ctx.theme
-  const rarity = createMemo(() => formatRarity(ctx.rarity()))
-  const description = createMemo(() => props.children ?? props.description ?? ctx.description())
+  const rarity = createMemo(() => formatRarity(ctx.props.rarity))
+  const description = createMemo(() => props.children ?? props.description ?? ctx.props.description)
 
   return (
     <CardHeader class={cn('flex flex-row gap-4 items-start', props.class)}>
       <div class="relative">
         <div class={cn('rounded-full flex size-14 shadow-inner items-center justify-center', t().frameBg, t().shadow)}>
-          <span class={cn(ctx.icon(), 'size-8', t().icon)} />
+          <span class={cn(ctx.props.icon, 'size-8', t().icon)} />
         </div>
-        <DiamondTierBadge rarity={ctx.rarity()} tier={ctx.tier()} />
+        <DiamondTierBadge rarity={ctx.props.rarity} tier={ctx.props.tier} />
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex gap-2 items-center justify-between">
-          <CardTitle class="text-base truncate md:text-lg">{ctx.name()}</CardTitle>
+          <CardTitle class="text-base truncate md:text-lg">{ctx.props.name}</CardTitle>
           <Show
             when={props.aside}
             fallback={(
@@ -274,8 +277,8 @@ const AchievementCardHeader: Component<AchievementCardHeaderProps> = (props) => 
                     {rarity()}
                   </span>
                 </Show>
-                <Show when={ctx.xp() !== undefined}>
-                  <span class={cn('text-xs px-2 py-0.5 rounded-full', t().pillText, t().pillBg)}>+{ctx.xp()} XP</span>
+                <Show when={ctx.props.xp !== undefined}>
+                  <span class={cn('text-xs px-2 py-0.5 rounded-full', t().pillText, t().pillBg)}>+{ctx.props.xp} XP</span>
                 </Show>
               </div>
             )}
@@ -304,7 +307,7 @@ const AchievementCardProgress: Component<AchievementCardProgressProps> = (props)
   const ctx = useAchievementCardContext()
   const t = ctx.theme
   const percent = createMemo(() => {
-    const raw = props.value ?? ctx.progress()
+    const raw = props.value ?? ctx.props.progress
     if (raw === undefined || raw === null)
       return undefined
     const value = Number(raw)
@@ -317,7 +320,7 @@ const AchievementCardProgress: Component<AchievementCardProgressProps> = (props)
   return (
     <Show when={hasPercent()}>
       <CardContent class={cn('pt-0', props.class)}>
-        <div class="mt-1 rounded-full bg-muted h-2 w-full overflow-hidden">
+        <div class="mt-1 rounded-full h-2 w-full ring-1 ring-border/40 overflow-hidden from-foreground/12 to-foreground/6 bg-gradient-to-r backdrop-blur-sm">
           <div class={cn('h-2 rounded-full transition-width duration-500', t().bar)} style={{ width: `${percent() ?? 0}%` }} />
         </div>
         <div class="text-xs text-muted-foreground mt-2 flex items-center justify-between">
@@ -325,8 +328,8 @@ const AchievementCardProgress: Component<AchievementCardProgressProps> = (props)
           <Show
             when={props.hint}
             fallback={(
-              <Show when={ctx.xp() !== undefined}>
-                <span>+{ctx.xp()} XP</span>
+              <Show when={ctx.props.xp !== undefined}>
+                <span>+{ctx.props.xp} XP</span>
               </Show>
             )}
           >
@@ -355,9 +358,7 @@ const AchievementCardDetails: Component<AchievementCardDetailsProps> = (props) =
             const variantTheme = themeFor(variant.rarity)
             return (
               <div
-                class={cn(
-                  'rounded-xl border border-border/70 bg-background/80 px-4 py-3 backdrop-blur-sm',
-                )}
+                class={cn('rounded-xl border border-border/70 bg-background/80 px-4 py-3 backdrop-blur-sm')}
               >
                 <div class="flex flex-col gap-1">
                   <div class="flex gap-2 items-center">

@@ -142,7 +142,7 @@ const ACHIEVEMENTS: AchievementDefinition[] = [
     description: 'Deliver wins four days in a row.',
     icon: 'i-ph-fire-duotone',
     rarity: 'spessar',
-    tier: 5,
+    tier: 64,
     xp: 640,
     variants: [
       { rarity: 'rhodal', title: 'Warm Up', requirement: 'Deliver wins three days in a row across two quest categories.', xp: 42 },

@@ -15,7 +15,7 @@ alwaysApply: true
 
 - SolidStart app with SSR disabled (`app.config.ts: ssr: false`). Client-only UX.
 - State: store providers in `src/stores` (like `UIStoreProvider`), and a root `RootStoreProvider` to combine them.
-- UI: solid-ui - headless Kobalte primitives wrapped with shadcn-like variants.
+- UI: solid-ui - headless Kobalte primitives wrapped with shadcn-like variants. `components/ui/*` is only for solid-ui.
   - Example: `components/ui/button.tsx`
 - Styling: UnoCSS (`uno.config.ts`) with Iconify (ph icon set). Use utility classes instead of CSS.
 - Routing: `src/app.tsx` composes `AppNavbar` + page container. Pages under `src/routes` use file-based routing.

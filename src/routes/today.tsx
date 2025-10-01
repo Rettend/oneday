@@ -1,6 +1,9 @@
 import type { AchievementCardProps } from '~/components/achievements/AchievementCard'
+import type { DeadlineChipProps } from '~/components/todo/DeadlineChip'
 import { createMemo, For } from 'solid-js'
 import AchievementCard from '~/components/achievements/AchievementCard'
+import DeadlineChip from '~/components/todo/DeadlineChip'
+import LevelPill from '~/components/todo/LevelPill'
 import { Button } from '~/components/ui/button'
 
 export default function Today() {
@@ -18,13 +21,23 @@ export default function Today() {
     { name: 'Placeholder', description: 'Preview card with default rarity.', icon: 'i-ph-sparkle-duotone', progress: 55, xp: 90 },
   ]))
 
+  const deadlines = createMemo<DeadlineChipProps[]>(() => ([
+    { type: 'hard', label: 'Release v0.1', date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000) },
+    { type: 'soft', label: 'Refactor auth', date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) },
+    { type: 'soft', label: 'Design review', date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000) },
+    { type: 'hard', label: 'Tax filing', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
+  ]))
+
   return (
     <section class="flex flex-col gap-4">
-      <header class="flex items-center justify-between">
+      <header class="flex gap-3 items-center justify-between">
         <h1 class="text-2xl tracking-tight font-semibold">Today</h1>
-        <Button class="bg-primary" variant="default">
-          Generate quests
-        </Button>
+        <div class="flex gap-3 items-center">
+          <LevelPill level={3} currentXp={60} nextLevelXp={120} />
+          <Button class="bg-primary" variant="default">
+            Generate quests
+          </Button>
+        </div>
       </header>
       <div class="gap-4 grid md:grid-cols-2">
         <For each={achievements()}>
@@ -41,6 +54,14 @@ export default function Today() {
               <AchievementCard.Header />
               <AchievementCard.Progress />
             </AchievementCard>
+          )}
+        </For>
+      </div>
+
+      <div class="mt-2 py-1 flex gap-2 items-center overflow-x-auto">
+        <For each={deadlines()}>
+          {d => (
+            <DeadlineChip type={d.type} label={d.label} date={d.date} />
           )}
         </For>
       </div>
