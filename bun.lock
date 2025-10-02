@@ -10,6 +10,7 @@
         "@ai-sdk/groq": "^2.0.22",
         "@ai-sdk/openai": "^2.0.36",
         "@ai-sdk/xai": "^2.0.23",
+        "@generouted/solid-router": "^1.20.0",
         "@kobalte/core": "^0.13.11",
         "@libsql/client": "^0.15.15",
         "@openrouter/ai-sdk-provider": "^1.2.0",
@@ -53,6 +54,9 @@
   "trustedDependencies": [
     "@parcel/watcher",
   ],
+  "patchedDependencies": {
+    "@generouted/solid-router@1.20.0": "patches/@generouted%2Fsolid-router@1.20.0.patch",
+  },
   "packages": {
     "@ai-sdk/anthropic": ["@ai-sdk/anthropic@2.0.19", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.10" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-tDJBKT5mFaOzh1hLZiXboi2GP0AeAThiCJWrbE44x4VYF7XVymSAahyN7Pd1f70SFQO9+FMdzFzeMk9Zv2jy+w=="],
 
@@ -247,6 +251,8 @@
     "@floating-ui/utils": ["@floating-ui/utils@0.2.10", "", {}, "sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ=="],
 
     "@fontsource-variable/josefin-sans": ["@fontsource-variable/josefin-sans@5.2.8", "", {}, "sha512-xt8EGt2/66JJV/mmWU2NxafIwXmDNdd1yi/bVZyRRMCtygHXPCldJrrjjDgOCJPyXbE7NWkc3g+5iE8uJJGbFA=="],
+
+    "@generouted/solid-router": ["@generouted/solid-router@1.20.0", "", { "dependencies": { "fast-glob": "^3.3.3", "generouted": "^1.20.0" }, "peerDependencies": { "@solidjs/router": ">=0.14", "solid-js": ">=1", "vite": ">=5" } }, "sha512-KCM9iS9UT2uzYBMsJpmqB67dNnuljInmuFs3lRmVfi1Pj3azJbKFcPBrtTljt/P8Sy/Mn/BvHaUMKIn9IsjQ5Q=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
@@ -1045,6 +1051,8 @@
     "fzf": ["fzf@0.5.2", "", {}, "sha512-Tt4kuxLXFKHy8KT40zwsUPUkg1CrsgY25FxA2U/j/0WgEDCk3ddc/zLTCCcbSHX9FcKtLuVaDGtGE/STWC+j3Q=="],
 
     "gc-hook": ["gc-hook@0.3.1", "", {}, "sha512-E5M+O/h2o7eZzGhzRZGex6hbB3k4NWqO0eA+OzLRLXxhdbYPajZnynPwAtphnh+cRHPwsj5Z80dqZlfI4eK55A=="],
+
+    "generouted": ["generouted@1.20.0", "", { "peerDependencies": { "vite": ">=5" } }, "sha512-VXU5dFsWdm/faFo2fTGW5obYxy8hhM6B1WXYhCLAV+5pODhrsu8RBc/1IsOQKqtHFYqsuSE5C5KpzmBaLllUqg=="],
 
     "gensync": ["gensync@1.0.0-beta.2", "", {}, "sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg=="],
 

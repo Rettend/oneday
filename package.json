@@ -26,6 +26,7 @@
     "@ai-sdk/groq": "^2.0.22",
     "@ai-sdk/openai": "^2.0.36",
     "@ai-sdk/xai": "^2.0.23",
+    "@generouted/solid-router": "^1.20.0",
     "@kobalte/core": "^0.13.11",
     "@libsql/client": "^0.15.15",
     "@openrouter/ai-sdk-provider": "^1.2.0",
@@ -66,5 +67,8 @@
   },
   "trustedDependencies": [
     "@parcel/watcher"
-  ]
+  ],
+  "patchedDependencies": {
+    "@generouted/solid-router@1.20.0": "patches/@generouted%2Fsolid-router@1.20.0.patch"
+  }
 }

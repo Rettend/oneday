@@ -1,5 +1,6 @@
 import type { ParentComponent } from 'solid-js'
-import { A, Navigate, useLocation } from '@solidjs/router'
+import { useLocation } from '@solidjs/router'
+import { A, Navigate } from '~/router'
 
 export const AchievementsLayout: ParentComponent = (props) => {
   const location = useLocation()

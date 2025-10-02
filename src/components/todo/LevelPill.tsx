@@ -1,8 +1,9 @@
 import type { Component } from 'solid-js'
-import { A } from '@solidjs/router'
+import type { Path } from '~/router'
 import { createMemo, Show } from 'solid-js'
 import { Button } from '~/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+import { A } from '~/router'
 import { cn } from '~/utils'
 
 interface LevelPillProps {
@@ -10,7 +11,7 @@ interface LevelPillProps {
   currentXp: number
   nextLevelXp: number
   class?: string
-  href?: string
+  href?: Path
 }
 
 export const LevelPill: Component<LevelPillProps> = (props) => {

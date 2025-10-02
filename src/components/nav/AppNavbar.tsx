@@ -1,10 +1,12 @@
 import type { Component } from 'solid-js'
-import { A, useLocation } from '@solidjs/router'
+import type { Path } from '~/router'
+import { useLocation } from '@solidjs/router'
 import { For } from 'solid-js'
 import LevelPill from '~/components/todo/LevelPill'
+import { A } from '~/router'
 
 interface NavItem {
-  href: string
+  href: Path
   icon: string
   label: string
 }
@@ -12,14 +14,14 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: '/today', icon: 'i-ph-calendar-check-duotone', label: 'Today' },
   { href: '/questboard', icon: 'i-ph-sword-duotone', label: 'Questboard' },
-  { href: '/achievements', icon: 'i-ph-trophy-duotone', label: 'Achievements' },
+  { href: '/achievements/progress', icon: 'i-ph-trophy-duotone', label: 'Achievements' },
   { href: '/activity', icon: 'i-ph:presentation-chart-duotone', label: 'Activity' },
   { href: '/settings', icon: 'i-ph-gear-six-duotone', label: 'Settings' },
   { href: '/rules', icon: 'i-ph-funnel-duotone', label: 'Rules' },
   { href: '/deadlines', icon: 'i-ph-calendar-duotone', label: 'Deadlines' },
 ]
 
-function isPathActive(currentPathname: string, href: string): boolean {
+function isPathActive(currentPathname: string, href: Path): boolean {
   if (href === '/')
     return currentPathname === '/'
   return currentPathname === href || currentPathname.startsWith(`${href}/`)

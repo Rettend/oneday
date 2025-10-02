@@ -1,9 +1,10 @@
 import type { AchievementCardProps } from '~/components/achievements/AchievementCard'
 import type { DeadlineChipProps } from '~/components/todo/DeadlineChip'
 import { createMemo, For } from 'solid-js'
-import AchievementCard from '~/components/achievements/AchievementCard'
+import AchievementsSummaryRow from '~/components/today/AchievementsSummaryRow'
 import DeadlineChip from '~/components/todo/DeadlineChip'
 import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 
 export default function Today() {
   const achievements = createMemo<AchievementCardProps[]>(() => ([
@@ -35,31 +36,61 @@ export default function Today() {
           Generate quests
         </Button>
       </header>
-      <div class="gap-4 grid md:grid-cols-2">
-        <For each={achievements()}>
-          {achievement => (
-            <AchievementCard
-              name={achievement.name}
-              description={achievement.description}
-              icon={achievement.icon}
-              rarity={achievement.rarity}
-              tier={achievement.tier}
-              progress={achievement.progress}
-              xp={achievement.xp}
-            >
-              <AchievementCard.Header />
-              <AchievementCard.Progress />
-            </AchievementCard>
-          )}
-        </For>
-      </div>
-
-      <div class="mt-2 py-1 flex gap-2 items-center overflow-x-auto">
+      <div class="py-1 flex gap-2 items-center overflow-x-auto">
         <For each={deadlines()}>
           {d => (
             <DeadlineChip type={d.type} label={d.label} date={d.date} />
           )}
         </For>
+      </div>
+
+      <div class="gap-4 grid md:grid-cols-2">
+        <div class="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-base">Dailies</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="text-sm text-muted-foreground">Checklist placeholder</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-base">Todo Outline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="text-sm text-muted-foreground">Outline/Tree placeholder</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div class="space-y-4">
+          <AchievementsSummaryRow items={achievements()} limit={6} />
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-base">Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="text-sm text-muted-foreground">Live timeline placeholder</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-base">Quick Stats</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="text-sm text-muted-foreground">Charts placeholder</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-base">Budgets</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="text-sm text-muted-foreground">Leisure meters placeholder</div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </section>
   )
