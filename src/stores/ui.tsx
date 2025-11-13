@@ -8,6 +8,7 @@ interface UIState {
 }
 
 interface UILocalState {
+  sidebarCollapsedLg: boolean
 }
 
 type UIStoreState = UIState & {
@@ -15,6 +16,8 @@ type UIStoreState = UIState & {
 }
 
 interface UIStoreActions {
+  setSidebarCollapsedLg: (collapsed: boolean) => void
+  toggleSidebarCollapsedLg: () => void
 }
 
 type StoreContextType = [Store<UIState>, Store<UILocalState>, UIStoreActions]
@@ -25,6 +28,7 @@ export function UIStoreProvider(props: ParentProps) {
   })
 
   const [baseLocal, setBaseLocal] = createStore<UILocalState>({
+    sidebarCollapsedLg: false,
   })
   const [local, _setLocal] = makePersisted([baseLocal, setBaseLocal], {
     name: 'UI',
@@ -33,6 +37,12 @@ export function UIStoreProvider(props: ParentProps) {
   })
 
   const actions: UIStoreActions = {
+    setSidebarCollapsedLg(collapsed: boolean) {
+      setBaseLocal('sidebarCollapsedLg', collapsed)
+    },
+    toggleSidebarCollapsedLg() {
+      setBaseLocal('sidebarCollapsedLg', !baseLocal.sidebarCollapsedLg)
+    },
   }
 
   return (

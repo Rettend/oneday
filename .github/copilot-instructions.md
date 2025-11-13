@@ -35,7 +35,7 @@
 
 ## Conventions and Patterns
 
-- How to fix *eslint solid/reactivity: The reactive variable 'props.x' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function, or else changes will be ignored.*
+- How to fix _eslint solid/reactivity: The reactive variable 'props.x' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function, or else changes will be ignored._
   - If you want the signal to be reactive, use `createMemo`
   - If you also want to mutate the signal, use `createWritableMemo`
   - Otherwise just wrap in `untrack`

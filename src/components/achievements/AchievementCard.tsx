@@ -212,7 +212,7 @@ const DiamondTierBadge: Component<{ rarity: Rarity | undefined, tier?: number }>
   return (
     <Show when={label()}>
       <div
-        class={cn('absolute -top-1.5 -right-1.5 size-6 rotate-45 rounded-4px border backdrop-blur-sm', t().pillBg, t().border)}
+        class={cn('absolute -top-1.5 -right-1.5 size-6 rotate-45 rounded-4px border backdrop-blur-md', t().pillBg, t().border)}
         style={{ '--un-border-opacity': '40%' }}
       >
         <div class="flex h-full w-full items-center justify-center">

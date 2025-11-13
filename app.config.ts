@@ -1,11 +1,14 @@
-import generouted from '@generouted/solid-router/plugin'
 import { defineConfig } from '@solidjs/start/config'
+import { typedRoutes } from 'start-typed-routes/plugin'
 import UnoCSS from 'unocss/vite'
 
 export default defineConfig({
   ssr: false,
   vite: {
-    plugins: [UnoCSS(), generouted()],
+    plugins: [
+      UnoCSS(),
+      typedRoutes(),
+    ],
     optimizeDeps: {
       exclude: ['sqlocal'],
     },

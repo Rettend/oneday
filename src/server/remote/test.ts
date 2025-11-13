@@ -1,8 +1,8 @@
 import { action, query } from '@solidjs/router'
 import z from 'zod'
 import { idSchema, parse } from '~/utils'
+import { db } from '../db'
 import { Tests } from '../db/schema'
-import { db } from '../index'
 
 // #region GET Tests
 const getTestsId = 'test:get'

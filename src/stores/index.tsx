@@ -3,8 +3,8 @@ import { UIStoreProvider } from './ui'
 
 export function RootStoreProvider(props: ParentProps) {
   return (
-      <UIStoreProvider>
-        {props.children}
-      </UIStoreProvider>
+    <UIStoreProvider>
+      {props.children}
+    </UIStoreProvider>
   )
 }

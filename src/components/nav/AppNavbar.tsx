@@ -4,6 +4,7 @@ import { useLocation } from '@solidjs/router'
 import { For } from 'solid-js'
 import LevelPill from '~/components/todo/LevelPill'
 import { A } from '~/router'
+import { useUIStore } from '~/stores/ui'
 
 interface NavItem {
   href: Path
@@ -29,17 +30,18 @@ function isPathActive(currentPathname: string, href: Path): boolean {
 
 const Sidebar: Component = () => {
   const location = useLocation()
+  const [ui, uiActions] = useUIStore()
   return (
     <aside class="inset-y-0 left-0 fixed z-50">
       <div class="flex h-dvh">
-        <div class="px-2 py-3 h-full w-20 lg:px-3 lg:w-64">
+        <div class={`px-2 py-3 h-full w-20 ${ui.local.sidebarCollapsedLg ? 'lg:px-2 lg:w-20' : 'lg:px-3 lg:w-64'}`}>
           <div class="h-full relative">
             <div class="rounded-2xl pointer-events-none inset-0 absolute from-primary/8 to-transparent via-transparent bg-gradient-to-b" />
             <div class="border border-border/80 rounded-2xl bg-background/55 h-full shadow-sm backdrop-blur-xl">
               <div class="flex flex-col h-full">
-                <A href="/" class="mx-1.5 mt-1.5 py-3 rounded-full inline-flex gap-3 items-center lg:px-4">
+                <A href="/" class={`mx-1.5 mt-1.5 py-3 rounded-full inline-flex gap-3 items-center ${ui.local.sidebarCollapsedLg ? 'lg:px-0 lg:justify-center' : 'lg:px-4'}`}>
                   <span class="i-ph-sun-horizon-duotone text-primary mx-a shrink-0 size-7 lg:mx-0" />
-                  <span class="text-lg font-semibold hidden lg:inline">Oneday</span>
+                  <span class={`text-lg font-semibold hidden ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>Oneday</span>
                 </A>
                 <div class="mx-1.5 mt-2 bg-border/80 h-px" />
                 <div class="flex-1 relative">
@@ -51,14 +53,14 @@ const Sidebar: Component = () => {
                           <A
                             href={item.href}
                             title={item.label}
-                            class="group rounded-full inline-flex w-full items-center justify-center lg:justify-start"
+                            class={`group rounded-full inline-flex w-full items-center justify-center ${ui.local.sidebarCollapsedLg ? 'lg:justify-center' : 'lg:justify-start'}`}
                             onMouseEnter={(e) => {
                               if (item.icon === 'i-ph-sword-duotone')
                                 e.currentTarget.classList.add('was-hovered')
                             }}
                           >
                             <div
-                              class={`rounded-full inline-flex gap-4 size-12 transition-all duration-200 items-center lg:pl-4 lg:pr-6 lg:h-12 lg:w-auto ${
+                              class={`rounded-full inline-flex gap-4 size-12 transition-all duration-200 items-center ${ui.local.sidebarCollapsedLg ? 'lg:pl-0 lg:pr-0' : 'lg:pl-4 lg:pr-6'} lg:h-12 ${ui.local.sidebarCollapsedLg ? 'lg:w-12' : 'lg:w-auto'}  ${
                                 active()
                                   ? 'bg-primary/8 text-foreground ring-1 ring-primary/40 shadow-[0_0_16px_oklch(var(--primary)_/_0.35)] group-hover:bg-primary/12'
                                   : 'text-foreground/80 group-hover:bg-primary/8 group-hover:text-foreground/90'
@@ -73,7 +75,7 @@ const Sidebar: Component = () => {
                                 : (
                                     <span class={`mx-a shrink-0 ${item.icon} size-7 transition-colors ${active() ? 'text-primary' : 'opacity-90 group-hover:opacity-100'}`} />
                                   )}
-                              <span class={`text-lg font-semibold hidden truncate lg:inline ${active() ? 'text-primary' : ''}`}>{item.label}</span>
+                              <span class={`text-lg font-semibold hidden truncate ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}  ${active() ? 'text-primary' : ''}`}>{item.label}</span>
                             </div>
                           </A>
                         )
@@ -82,9 +84,17 @@ const Sidebar: Component = () => {
                   </nav>
                   <div class="rounded-b-2xl h-8 pointer-events-none bottom-0 left-0 right-0 absolute from-background to-transparent bg-gradient-to-t lg:h-10" />
                 </div>
-                <div class="px-3 py-3">
-                  <LevelPill level={3} currentXp={60} nextLevelXp={120} href="/achievements/progress" />
+                <div class={`px-3 py-3 ${ui.local.sidebarCollapsedLg ? 'lg:px-0' : ''}`}>
+                  <LevelPill level={3} currentXp={60} nextLevelXp={120} href="/achievements/progress" forceIconMode={ui.local.sidebarCollapsedLg} />
                 </div>
+                <button
+                  type="button"
+                  aria-label="Toggle sidebar width"
+                  title="Toggle sidebar width"
+                  class="opacity-0 hidden transition-opacity duration-150 bottom-0 right-[-6px] top-0 absolute focus:opacity-100 hover:opacity-100 lg:block"
+                  style={{ cursor: 'e-resize', width: '12px' }}
+                  onClick={() => uiActions.toggleSidebarCollapsedLg()}
+                />
                 <style>
                   {`
                   .nav-scroll { scrollbar-width: none; }

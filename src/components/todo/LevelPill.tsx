@@ -12,6 +12,7 @@ interface LevelPillProps {
   nextLevelXp: number
   class?: string
   href?: Path
+  forceIconMode?: boolean
 }
 
 export const LevelPill: Component<LevelPillProps> = (props) => {
@@ -19,13 +20,30 @@ export const LevelPill: Component<LevelPillProps> = (props) => {
   const clampedNext = createMemo(() => Math.max(1, props.nextLevelXp))
   const percent = createMemo(() => Math.min(100, Math.round((clampedCurrent() / clampedNext()) * 100)))
 
+  const showIconMode = () => props.forceIconMode || false
+
   return (
     <div class={cn('w-full', props.class)}>
-      <div class="w-full hidden lg:inline-flex">
-        {props.href
-          ? (
-              <A href={props.href} aria-label={`Level ${props.level}, ${clampedCurrent()} of ${clampedNext()} XP`} class="w-full">
-                <div class={cn('inline-flex flex-col w-full gap-2 rounded-lg ring-1 ring-border/60 bg-background/70 px-2 py-1.5 backdrop-blur-md')}>
+      <Show when={!showIconMode()}>
+        <div class="w-full hidden lg:inline-flex">
+          {props.href
+            ? (
+                <A href={props.href} aria-label={`Level ${props.level}, ${clampedCurrent()} of ${clampedNext()} XP`} class="w-full">
+                  <div class={cn('inline-flex flex-col w-full gap-2 rounded-lg ring-1 ring-border/60 bg-background/70 px-2 py-1.5 backdrop-blur-md')}>
+                    <div class="flex w-full justify-between">
+                      <span class="text-xs font-semibold">Lvl {props.level}</span>
+                      <Show when={Number.isFinite(props.currentXp) && Number.isFinite(props.nextLevelXp)}>
+                        <span class="text-[11px] text-muted-foreground ml-1">{clampedCurrent()} / {clampedNext()} XP</span>
+                      </Show>
+                    </div>
+                    <div class="rounded-full bg-muted h-2 w-full overflow-hidden">
+                      <div class="rounded-full bg-primary h-2 transition-width duration-500" style={{ width: `${percent()}%` }} />
+                    </div>
+                  </div>
+                </A>
+              )
+            : (
+                <div aria-label={`Level ${props.level}, ${clampedCurrent()} of ${clampedNext()} XP`} class={cn('inline-flex flex-col w-full gap-2 rounded-lg ring-1 ring-border/60 bg-background/70 px-2 py-1.5 backdrop-blur-md')}>
                   <div class="flex w-full justify-between">
                     <span class="text-xs font-semibold">Lvl {props.level}</span>
                     <Show when={Number.isFinite(props.currentXp) && Number.isFinite(props.nextLevelXp)}>
@@ -36,24 +54,11 @@ export const LevelPill: Component<LevelPillProps> = (props) => {
                     <div class="rounded-full bg-primary h-2 transition-width duration-500" style={{ width: `${percent()}%` }} />
                   </div>
                 </div>
-              </A>
-            )
-          : (
-              <div aria-label={`Level ${props.level}, ${clampedCurrent()} of ${clampedNext()} XP`} class={cn('inline-flex flex-col w-full gap-2 rounded-lg ring-1 ring-border/60 bg-background/70 px-2 py-1.5 backdrop-blur-md')}>
-                <div class="flex w-full justify-between">
-                  <span class="text-xs font-semibold">Lvl {props.level}</span>
-                  <Show when={Number.isFinite(props.currentXp) && Number.isFinite(props.nextLevelXp)}>
-                    <span class="text-[11px] text-muted-foreground ml-1">{clampedCurrent()} / {clampedNext()} XP</span>
-                  </Show>
-                </div>
-                <div class="rounded-full bg-muted h-2 w-full overflow-hidden">
-                  <div class="rounded-full bg-primary h-2 transition-width duration-500" style={{ width: `${percent()}%` }} />
-                </div>
-              </div>
-            )}
-      </div>
+              )}
+        </div>
+      </Show>
 
-      <div class="flex items-center justify-center lg:hidden">
+      <div class={cn('flex items-center justify-center', showIconMode() ? 'inline-flex' : 'lg:hidden')}>
         <Popover>
           <PopoverTrigger
             as={Button}

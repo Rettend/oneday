@@ -66,15 +66,15 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
     <div class="pointer-events-none inset-x-0 bottom-3 fixed z-50">
       <div class="mx-auto px-3 max-w-3xl w-full">
         <div
-          class="rounded-2xl pointer-events-auto"
+          class="rounded-2xl pointer-events-auto hover:scale-100"
           classList={{
-            'bg-card/80 border border-border/80 backdrop-blur-xl': focused(),
-            'bg-transparent': !focused(),
+            'bg-card/80 border border-border/80 backdrop-blur-xl scale-100': focused(),
+            'bg-transparent scale-[0.98]': !focused(),
           }}
           style={{
             'margin-inline': 'auto',
             'width': focused() ? '100%' : '92%',
-            'transition': 'width 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease',
+            'transition': 'width 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
           <div class="p-3">

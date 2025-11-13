@@ -1,24 +1,6 @@
-// Generouted, changes to this file will be overridden
-/* eslint-disable */
-
-import { components, hooks } from '@generouted/solid-router/client'
-
-export type Path =
-  | `/`
-  | `/achievements/discover`
-  | `/achievements/progress`
-  | `/activity`
-  | `/deadlines`
-  | `/questboard`
-  | `/rules`
-  | `/settings`
-  | `/today`
-
-export type Params = {
-  
-}
-
-export type ModalPath = never
+import type { Params, Path } from './routes'
+import { components, hooks } from 'start-typed-routes'
 
 export const { A, Navigate } = components<Path, Params>()
-export const { useMatch, useModals, useNavigate, useParams } = hooks<Path, Params, ModalPath>()
+export const { useParams, useNavigate, useMatch } = hooks<Path, Params>()
+export type { Path, Params }

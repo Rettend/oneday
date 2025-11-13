@@ -3,6 +3,10 @@
 ## Bugs
 
 - [ ] achievements/discover: the view transition places the floating llm input behind the sidebar
+- [ ] viewtransitions mess up quest nav animation on click, maybe remove
+
+## Notes
+
 - [ ] collapse sidebar to icon only when clicking on it, just like grok.com
 - [ ] generating achievements: generate rarities first, then llm fills in the rest of the achievement
   - rarer ones have lower chance, and depends on previously accepted achievements, so user can't just reroll until they get all spessars
