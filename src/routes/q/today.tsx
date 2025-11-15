@@ -1,12 +1,15 @@
 import type { AchievementCardProps } from '~/components/achievements/AchievementCard'
 import type { DeadlineChipProps } from '~/components/todo/DeadlineChip'
+import { Protected } from '@rttnd/gau/client/solid'
 import { createMemo, For } from 'solid-js'
 import AchievementsSummaryRow from '~/components/today/AchievementsSummaryRow'
 import DeadlineChip from '~/components/todo/DeadlineChip'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 
-export default function Today() {
+export default Protected(TodayPage, '/')
+
+function TodayPage() {
   const achievements = createMemo<AchievementCardProps[]>(() => ([
     { name: 'Steel Resolve', description: 'Work through a slow day without breaking.', icon: 'i-ph-shield-check-duotone', rarity: 'iron', tier: 1, progress: 40, xp: 40 },
     { name: 'First Steps', description: 'Complete your first quest.', icon: 'i-ph-trophy-duotone', rarity: 'bronze', tier: 1, progress: 20, xp: 50 },

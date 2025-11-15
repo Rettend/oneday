@@ -1,4 +1,8 @@
-export default function Questboard() {
+import { Protected } from '@rttnd/gau/client/solid'
+
+export default Protected(QuestboardPage, '/')
+
+function QuestboardPage() {
   return (
     <section class="flex flex-col gap-4">
       <h1 class="text-2xl tracking-tight font-semibold">Questboard</h1>

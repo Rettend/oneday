@@ -2,14 +2,19 @@
 
 export type Path =
   | '/'
-  | '/achievements'
-  | '/achievements/discover'
-  | '/achievements/progress'
-  | '/activity'
-  | '/deadlines'
-  | '/questboard'
-  | '/rules'
-  | '/settings'
-  | '/today'
+  | '/api/auth/*gau'
+  | '/c'
+  | '/q'
+  | '/q/achievements'
+  | '/q/achievements/discover'
+  | '/q/achievements/progress'
+  | '/q/activity'
+  | '/q/deadlines'
+  | '/q/questboard'
+  | '/q/rules'
+  | '/q/settings'
+  | '/q/today'
 
-export type Params = {}
+export type Params = {
+  '/api/auth/*gau': { gau: string }
+}

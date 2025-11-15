@@ -6,6 +6,7 @@
 - Shell is Windows cmd.exe. Avoid Unix-only commands.
 - No backwards-compat concerns; prefer the best implementation over non-breaking changes.
 - Do NOT run dev/build/test/lint scripts yourself.
+- Do NOT repeat code when summarizing your changes.
 
 ## Architecture
 

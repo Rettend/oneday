@@ -1,4 +1,8 @@
-export default function Rules() {
+import { Protected } from '@rttnd/gau/client/solid'
+
+export default Protected(RulesPage, '/')
+
+function RulesPage() {
   return (
     <section class="flex flex-col gap-4">
       <h1 class="text-2xl tracking-tight font-semibold">Rules</h1>

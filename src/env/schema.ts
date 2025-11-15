@@ -2,10 +2,17 @@ import { z } from 'zod'
 
 export const serverScheme = z.object({
   TURSO_DB_URL: z.string(),
+  TURSO_AUTH_TOKEN: z.string(),
+  AUTH_SECRET: z.string(),
+  GITHUB_CLIENT_ID: z.string(),
+  GITHUB_CLIENT_SECRET: z.string(),
+  DISCORD_CLIENT_ID: z.string(),
+  DISCORD_CLIENT_SECRET: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
 })
 
 export const clientScheme = z.object({
-  VITE_DB_FILE: z.string(),
 })
 
 export function parseEnv<T extends z.ZodTypeAny>(

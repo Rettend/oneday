@@ -1,98 +1,113 @@
-import { createSignal, Show } from 'solid-js'
+import { createAsync } from '@solidjs/router'
+import { createMemo, For, Show } from 'solid-js'
 import { Button } from '~/components/ui/button'
-import { TextField, TextFieldDescription, TextFieldErrorMessage, TextFieldLabel, TextFieldTextArea } from '~/components/ui/text-field'
+import { useAuth } from '~/lib/auth'
+import { A } from '~/router'
+import { getConnectionInfo } from '~/server/remote/requestInfo'
+
+const providers = [
+  {
+    id: 'google' as const,
+    label: 'Google',
+    icon: 'i-ph-google-logo-duotone',
+  },
+  {
+    id: 'github' as const,
+    label: 'GitHub',
+    icon: 'i-ph-github-logo-duotone',
+  },
+  {
+    id: 'discord' as const,
+    label: 'Discord',
+    icon: 'i-ph-discord-logo-duotone',
+  },
+]
 
 export default function Home() {
-  const [note, setNote] = createSignal('')
-  const [touched, setTouched] = createSignal(false)
+  const auth = useAuth()
+  const connectionInfo = createAsync(() => getConnectionInfo())
+
+  const connectionText = createMemo(() => {
+    const info = connectionInfo()
+    if (!info)
+      return 'Not connected'
+
+    const tls = info.tlsVersion ?? 'N/A'
+    const protocol = info.httpProtocol ?? 'N/A'
+
+    const location
+      = info.city && info.country
+        ? `${info.city}, ${info.country}`
+        : info.colo
+          ? info.colo
+          : 'Unknown'
+
+    return `Connection via ${tls} · ${protocol} · Edge: ${location}`
+  })
 
   return (
-    <main class="min-h-100dvh">
-      <section class="mx-auto px-4 py-12 container flex flex-col gap-8 max-w-3xl">
-        <header class="text-center flex flex-col gap-2">
-          <h1 class="text-4xl tracking-tight font-extrabold md:text-5xl">
-            Build your day like a game
-          </h1>
-          <p class="text-muted-foreground">
-            Turn todos into quests, earn XP, unlock achievements.
-          </p>
-        </header>
-
-        <div class="p-5 border rounded-xl bg-card shadow-sm">
-          <TextField class="w-full">
-            <TextFieldLabel>What should we turn into quests?</TextFieldLabel>
-            <TextFieldDescription>
-              Paste thoughts freely — it saves on blur to minimize clicks.
-            </TextFieldDescription>
-            <TextFieldTextArea
-              rows={5}
-              placeholder="e.g., Ship onboarding, study TypeScript, gym 45m, clean inbox…"
-              onBlur={(e) => {
-                setTouched(true)
-                setNote(e.currentTarget.value.trim())
-              }}
-            />
-            <Show when={touched() && !note()}>
-              <TextFieldErrorMessage>Please add a short note.</TextFieldErrorMessage>
-            </Show>
-          </TextField>
-
-          <div class="mt-4 flex items-center justify-between">
-            <span class="text-xs text-muted-foreground">
-              {note() ? `${note().length} characters` : 'No input yet'}
-            </span>
-            <Button class="bg-primary" variant="default">
-              Generate quests
-            </Button>
-          </div>
-        </div>
-
-        <div class="gap-4 grid md:grid-cols-2">
-          <div class="p-4 border rounded-xl bg-card shadow-sm">
-            <div class="flex gap-3 items-center">
-              <span class="i-ph-trophy-duotone text-3xl text-amber-500" />
-              <div>
-                <p class="font-semibold">First Steps</p>
-                <p class="text-xs text-muted-foreground">Rarity: Bronze • Tier I</p>
-              </div>
+    <main class="flex min-h-100dvh items-center justify-center">
+      <Show
+        when={auth.session().user}
+        fallback={(
+          <section class="mx-auto px-4 py-8 container max-w-sm">
+            <header class="mb-6 text-center flex flex-col gap-2">
+              <h1 class="text-3xl tracking-tight font-semibold">Sign in to Oneday</h1>
+              <p class="text-sm text-muted-foreground">
+                {connectionText()}
+              </p>
+            </header>
+            <div class="space-y-3">
+              <For each={providers}>
+                {provider => (
+                  <Button
+                    class="w-full"
+                    variant="outline"
+                    onClick={() => auth.signIn(provider.id, { redirectTo: '/q/today' })}
+                  >
+                    <span class={`${provider.icon} mr-2 size-5`} />
+                    Continue with
+                    {' '}
+                    {provider.label}
+                  </Button>
+                )}
+              </For>
             </div>
-            <p class="text-sm text-muted-foreground mt-3">
-              Complete your first quest. Reward: 50 XP.
-            </p>
-            <div class="mt-4 rounded-full bg-muted h-2 w-full">
-              <div class="rounded-full bg-primary h-2 w-1/5" />
+          </section>
+        )}
+      >
+        <section class="mx-auto px-4 py-12 text-center container flex flex-col gap-8 max-w-2xl items-center">
+          <div class="flex flex-col gap-4 items-center">
+            <span class="i-ph-sun-horizon-duotone text-primary size-16 md:size-20" />
+            <div class="space-y-2">
+              <h1 class="text-4xl tracking-tight font-semibold md:text-5xl">Oneday</h1>
+              <p class="text-sm text-muted-foreground mx-auto max-w-md md:text-base">
+                {connectionText()}
+              </p>
             </div>
           </div>
-
-          <div class="p-4 border rounded-xl bg-card shadow-sm">
-            <div class="flex items-center justify-between">
-              <div class="flex gap-2 items-center">
-                <span class="i-ph-sword-duotone text-2xl text-primary" />
-                <p class="font-semibold">Quest Preview</p>
-              </div>
-              <span class="text-xs text-primary px-2 py-0.5 rounded-full bg-primary/10">+120 XP</span>
-            </div>
-            <ul class="text-sm mt-3 space-y-2">
-              <li class="flex gap-2 items-center">
-                <span class="i-ph-check-circle-duotone text-green-500" />
-                Outline onboarding checklist
-              </li>
-              <li class="flex gap-2 items-center">
-                <span class="i-ph-check-circle-duotone text-green-500" />
-                Study TS utility types 30m
-              </li>
-              <li class="flex gap-2 items-center">
-                <span class="i-ph-check-circle-duotone text-green-500" />
-                Inbox to zero (15m)
-              </li>
-            </ul>
+          <div class="mt-2 gap-4 grid max-w-md w-full md:grid-cols-2">
+            <A
+              href="/c"
+              class="group px-6 py-5 text-left border border-border/80 rounded-2xl bg-background/70 flex gap-3 transition-colors items-center hover:border-primary/40 hover:bg-primary/6"
+            >
+              <span class="text-primary rounded-full bg-primary/10 inline-flex size-9 items-center justify-center">
+                <span class="i-ph-chat-circle-dots-duotone size-5" />
+              </span>
+              <div class="text-lg font-semibold">Chat</div>
+            </A>
+            <A
+              href="/q/today"
+              class="group px-6 py-5 text-left border border-border/80 rounded-2xl bg-background/70 flex gap-3 transition-colors items-center hover:border-primary/40 hover:bg-primary/6"
+            >
+              <span class="text-primary rounded-full bg-primary/10 inline-flex size-9 items-center justify-center">
+                <span class="i-ph-sword-duotone size-5" />
+              </span>
+              <div class="text-lg font-semibold">Quest</div>
+            </A>
           </div>
-        </div>
-
-        <footer class="text-xs text-muted-foreground text-center">
-          v0 design preview
-        </footer>
-      </section>
+        </section>
+      </Show>
     </main>
   )
 }

@@ -4,21 +4,17 @@ import UnoCSS from 'unocss/vite'
 
 export default defineConfig({
   ssr: false,
+  server: {
+    preset: 'cloudflare-module',
+  },
+  middleware: 'src/middleware.ts',
   vite: {
     plugins: [
       UnoCSS(),
       typedRoutes(),
     ],
     optimizeDeps: {
-      exclude: ['sqlocal'],
-    },
-    worker: {
-      format: 'es',
-    },
-  },
-  server: {
-    routeRules: {
-      '/**': { headers: { 'Cross-Origin-Embedder-Policy': 'require-corp', 'Cross-Origin-Opener-Policy': 'same-origin' } },
+      exclude: ['@rttnd/gau'],
     },
   },
 })

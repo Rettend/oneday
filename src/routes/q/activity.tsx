@@ -1,4 +1,8 @@
-export default function Activity() {
+import { Protected } from '@rttnd/gau/client/solid'
+
+export default Protected(ActivityPage, '/')
+
+function ActivityPage() {
   return (
     <section class="flex flex-col gap-4">
       <h1 class="text-2xl tracking-tight font-semibold">Activity</h1>
