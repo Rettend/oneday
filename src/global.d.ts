@@ -19,6 +19,7 @@ declare module 'vinxi/http' {
   interface H3EventContext {
     cloudflare?: {
       env?: CloudflareEnv
+      request?: Request
     }
   }
 }

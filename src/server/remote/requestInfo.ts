@@ -14,18 +14,7 @@ const getConnectionInfoId = 'request:getConnectionInfo'
 export const getConnectionInfo = query(async () => {
   'use server'
   const event = getRequestEvent()
-  const nativeEvent = (event as any)?.nativeEvent
-
-  // Mirror how we access env in `getRegistry`: everything hangs off
-  // `event.nativeEvent.context.cloudflare`.
-  const cloudflare = nativeEvent?.context?.cloudflare
-
-  // Prefer the Cloudflare request hanging off the same object that provides `env`,
-  // and fall back to the other known locations just in case.
-  const request
-    = (cloudflare?.request as Request & { cf?: Record<string, unknown> })
-      ?? (nativeEvent?.request as Request & { cf?: Record<string, unknown> })
-      ?? (event?.request as Request & { cf?: Record<string, unknown> })
+  const request = event?.nativeEvent?.context?.cloudflare?.request
 
   const cf = request?.cf as
     | (ConnectionInfo & {
@@ -37,17 +26,6 @@ export const getConnectionInfo = query(async () => {
     })
     | undefined
 
-  // Minimal diagnostics so we can see what's happening in Cloudflare logs.
-  // eslint-disable-next-line no-console
-  console.log('[getConnectionInfo] sources', {
-    hasEvent: !!event,
-    hasRequest: !!event?.request,
-    hasNativeRequest: !!nativeEvent?.request,
-    hasCloudflare: !!cloudflare,
-    hasCloudflareRequest: !!cloudflare?.request,
-    hasCf: !!cf,
-  })
-
   if (!cf)
     return null
 
@@ -58,9 +36,6 @@ export const getConnectionInfo = query(async () => {
     country: cf.country ?? null,
     colo: cf.colo ?? null,
   }
-
-  // eslint-disable-next-line no-console
-  console.log('info', info)
 
   return info
 }, getConnectionInfoId)
