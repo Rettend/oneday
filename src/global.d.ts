@@ -11,4 +11,16 @@ declare global {
   }
 }
 
+interface CloudflareEnv {
+  REGISTRY: KVNamespace
+}
+
+declare module 'vinxi/http' {
+  interface H3EventContext {
+    cloudflare?: {
+      env?: CloudflareEnv
+    }
+  }
+}
+
 export {}

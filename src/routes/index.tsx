@@ -63,7 +63,7 @@ export default function Home() {
                   <Button
                     class="w-full"
                     variant="outline"
-                    onClick={() => auth.signIn(provider.id, { redirectTo: '/q/today' })}
+                    onClick={() => auth.signIn(provider.id)}
                   >
                     <span class={`${provider.icon} mr-2 size-5`} />
                     Continue with

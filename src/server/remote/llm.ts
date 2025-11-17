@@ -21,14 +21,14 @@ export const getChatModels = query(async () => {
   'use server'
 
   const registry = getRegistry()
-  const { data: models, error } = await registry.searchModels({
+  const models = await registry.searchModels({
     capability: 'text',
     status: 'active',
     minIq: 0,
     minSpeed: 0,
   })
 
-  if (error || !models)
+  if (!models)
     return [] as ChatModelSummary[]
 
   const filtered = models.filter(model => SUPPORTED_PROVIDERS.has(model.provider))

@@ -8,7 +8,7 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["vinxi/types/client", "node"],
+    "types": ["vinxi/types/client", "node", "@cloudflare/workers-types"],
     "allowJs": true,
     "strict": true,
     "noEmit": true,

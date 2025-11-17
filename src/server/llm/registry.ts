@@ -1,14 +1,15 @@
-import { createRegistry } from '@rttnd/llm'
-
-// Registry client for llm.rettend.me.
-// For now this uses HTTP; once the shared Cloudflare KV binding is wired,
-// we can swap this to use createKVRegistry({ kv: env.REGISTRY }).
-
-const BASE_URL = 'https://llm.rettend.me'
+import { createKVRegistry } from '@rttnd/llm'
+import { getRequestEvent } from 'solid-js/web'
 
 export function getRegistry() {
-  return createRegistry({
-    baseUrl: BASE_URL,
-    cache: 'auto',
-  })
+  const event = getRequestEvent()
+  const env = event?.nativeEvent?.context?.cloudflare?.env
+
+  if (!env?.REGISTRY) {
+    throw new Error(
+      'REGISTRY KV binding not found.',
+    )
+  }
+
+  return createKVRegistry({ kv: env.REGISTRY })
 }
