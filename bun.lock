@@ -15,7 +15,7 @@
         "@libsql/client": "^0.15.15",
         "@openrouter/ai-sdk-provider": "^1.2.3",
         "@rttnd/gau": "^1.0.0",
-        "@rttnd/llm": "^1.0.0",
+        "@rttnd/llm": "^1.1.0",
         "@solid-primitives/scheduled": "^1.5.2",
         "@solid-primitives/storage": "^4.3.3",
         "@solidjs/meta": "^0.29.4",
@@ -556,9 +556,9 @@
 
     "@rttnd/gau": ["@rttnd/gau@1.0.0", "", { "dependencies": { "@oslojs/jwt": "^0.3.0", "arctic": "^3.7.0", "cookie": "^1.0.2", "esm-env": "^1.2.2" }, "peerDependencies": { "@solidjs/router": "^0.15.3", "@sveltejs/kit": "^2.25.1", "@tauri-apps/api": "^2.6.0", "@tauri-apps/plugin-opener": "^2.3.0", "@tauri-apps/plugin-shell": "^2.3.0", "drizzle-orm": "^0.44.3", "solid-js": "^1.9.7", "svelte": "^5.41.1", "typescript": "^5.8.3" }, "optionalPeers": ["@solidjs/router", "@sveltejs/kit", "@tauri-apps/api", "@tauri-apps/plugin-opener", "@tauri-apps/plugin-shell", "drizzle-orm", "solid-js", "svelte", "typescript"], "bin": { "gau": "dist/src/cli/index.js" } }, "sha512-DLTGNRWZZy6PkI8e0QTOOH+Wtr51hDPQp1eOkXGSoUKboA8JLy4tzHreA3LRet4nzOqL/rCVmfySo5sHe1vDOw=="],
 
-    "@rttnd/llm": ["@rttnd/llm@1.0.0", "", { "dependencies": { "@elysiajs/eden": "^1.4.4", "@rttnd/llm-shared": "^1.0.0", "unstorage": "^1.17.2" } }, "sha512-pdIjmzobC4v9G7naBhEK9D2AqLetYXyz5ZOkJATKLCNULwAfDQsn6Q1ABsVzKAP/pqJgSe+FGuAfr6ggRGTesw=="],
+    "@rttnd/llm": ["@rttnd/llm@1.1.0", "", { "dependencies": { "@elysiajs/eden": "^1.4.4", "@rttnd/llm-shared": "^1.1.0", "unstorage": "^1.17.2" } }, "sha512-dhnfGmwSVnc+bAc684nx+nfAtx2AM/zJMErb28lhIJgi37ao7KhdUa86KFPt0RAPLxevoPqy8vQHgTDLHDR5Aw=="],
 
-    "@rttnd/llm-shared": ["@rttnd/llm-shared@1.0.0", "", {}, "sha512-J+pa/uwJ+3l2V5NVPBH7NQxwgq9oGkoEdASBVCvF9izLL6SBye28+lJSyF8/QojMV5DDzWca7sUJW11EDFJunA=="],
+    "@rttnd/llm-shared": ["@rttnd/llm-shared@1.1.0", "", {}, "sha512-RmLz09L0HJg4qbI8UsAYQBJYAHhzCE7OjSBICI3RFzcTZ3eu9H/YveAjR/zJH/7Q2m7bSAzw6rOREfewaLNiZQ=="],
 
     "@rttnd/unocss-preset-shadcn": ["@rttnd/unocss-preset-shadcn@1.0.1", "", { "peerDependencies": { "unocss": ">=0.56.0 < 101", "unocss-preset-animations": "^1.1.1" } }, "sha512-mDZeq0VnhMk7hisfkCk3FiBZhsGa2lzoqdwL5OkF96B0rmihdmaw84XgijQvyEuBT0ETfNkZ2zzJbwqyxngZ9A=="],
 

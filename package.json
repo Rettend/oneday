@@ -29,7 +29,7 @@
     "@libsql/client": "^0.15.15",
     "@openrouter/ai-sdk-provider": "^1.2.3",
     "@rttnd/gau": "^1.0.0",
-    "@rttnd/llm": "^1.0.0",
+    "@rttnd/llm": "^1.1.0",
     "@solid-primitives/scheduled": "^1.5.2",
     "@solid-primitives/storage": "^4.3.3",
     "@solidjs/meta": "^0.29.4",

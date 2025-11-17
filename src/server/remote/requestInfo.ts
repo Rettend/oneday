@@ -14,7 +14,16 @@ const getConnectionInfoId = 'request:getConnectionInfo'
 export const getConnectionInfo = query(async () => {
   'use server'
   const event = getRequestEvent()
-  const request = event?.request as Request & { cf?: Record<string, unknown> }
+  const nativeEvent = (event as any)?.nativeEvent
+
+  // Try multiple possible locations for the Cloudflare request object so this
+  // keeps working even if the adapter changes how it wires things up.
+  const request
+    = (event?.request as Request & { cf?: Record<string, unknown> }) //
+      ?? (nativeEvent?.request as Request & { cf?: Record<string, unknown> })
+      ?? (nativeEvent?.context?.cloudflare?.request as Request & { cf?: Record<string, unknown> })
+      ?? (nativeEvent?.node?.req as Request & { cf?: Record<string, unknown> })
+
   const cf = request?.cf as
     | (ConnectionInfo & {
       tlsVersion?: string
@@ -24,6 +33,17 @@ export const getConnectionInfo = query(async () => {
       colo?: string
     })
     | undefined
+
+  // Minimal diagnostics so we can see what's happening in Cloudflare logs.
+  // eslint-disable-next-line no-console
+  console.log('[getConnectionInfo] sources', {
+    hasEvent: !!event,
+    hasRequest: !!event?.request,
+    hasNativeRequest: !!nativeEvent?.request,
+    hasCloudflareRequest: !!nativeEvent?.context?.cloudflare?.request,
+    hasNodeReq: !!nativeEvent?.node?.req,
+    hasCf: !!cf,
+  })
 
   if (!cf)
     return null
@@ -36,7 +56,8 @@ export const getConnectionInfo = query(async () => {
     colo: cf.colo ?? null,
   }
 
-  console.log(info)
+  // eslint-disable-next-line no-console
+  console.log('info', info)
 
   return info
 }, getConnectionInfoId)
