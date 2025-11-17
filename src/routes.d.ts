@@ -2,8 +2,8 @@
 
 export type Path =
   | '/'
-  | '/api/auth/*gau'
   | '/c'
+  | '/c/:id'
   | '/q'
   | '/q/achievements'
   | '/q/achievements/discover'
@@ -16,5 +16,5 @@ export type Path =
   | '/q/today'
 
 export type Params = {
-  '/api/auth/*gau': { gau: string }
+  '/c/:id': { id: string }
 }

@@ -169,14 +169,17 @@ export default function AchievementsDiscover() {
   const [openId, setOpenId] = createSignal<string | null>(null)
 
   function handleSendLLMContext(message: string) {
+    // eslint-disable-next-line no-console
     console.log('[LLM Context]', message)
   }
 
   function handleAccept(name: string) {
+    // eslint-disable-next-line no-console
     console.log('[Achievement] accepted', name)
   }
 
   function handleReject(name: string) {
+    // eslint-disable-next-line no-console
     console.log('[Achievement] rejected', name)
   }
 
@@ -238,7 +241,11 @@ export default function AchievementsDiscover() {
         </div>
 
         <div class="h-28" />
-        <LLMInput onSend={handleSendLLMContext} />
+        <LLMInput
+          onSend={handleSendLLMContext}
+          position="overlay"
+          settingsMode="active"
+        />
       </section>
     </AchievementsLayout>
   )

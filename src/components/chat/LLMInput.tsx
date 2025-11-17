@@ -1,17 +1,45 @@
 import type { Component } from 'solid-js'
-import { createSignal, For, onMount } from 'solid-js'
+import { createMemo, createSignal, onMount, Show } from 'solid-js'
 import { Button } from '~/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from '~/components/ui/select'
 import { TextField, TextFieldTextArea } from '~/components/ui/text-field'
+
+type LLMInputPosition = 'overlay' | 'inline'
+type LLMInputSettingsMode = 'always' | 'active'
+type ReasoningEffort = 'none' | 'low' | 'med' | 'high'
 
 interface LLMInputProps {
   placeholder?: string
   onSend?: (message: string) => void
+  /**
+   * Where the input should be rendered.
+   * - `inline`: rendered in the document flow
+   * - `overlay`: floating at the bottom of the viewport
+   *
+   * Defaults to `overlay`.
+   */
+  position?: LLMInputPosition
+  /**
+   * When to show the settings row.
+   * - `always`: settings are always visible
+   * - `active`: settings are hidden by default and shown on hover / focus / when there is a message
+   *
+   * Defaults to `always`.
+   */
+  settingsMode?: LLMInputSettingsMode
 }
 
 export const LLMInput: Component<LLMInputProps> = (props) => {
   const [focused, setFocused] = createSignal(false)
+  const [hovered, setHovered] = createSignal(false)
   const [message, setMessage] = createSignal('')
   const [sending, setSending] = createSignal(false)
+  const [reasoningEffort, setReasoningEffort] = createSignal<ReasoningEffort>('med')
 
   let textareaRef: HTMLTextAreaElement | undefined
 
@@ -55,93 +83,177 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
     scheduleResize()
   })
 
-  const quickPrompts = [
-    'Suggest more like these',
-    'Make variants harder',
-    'Focus on deep work',
-    'Balance fun and difficulty',
-  ]
+  const position = createMemo(() => props.position ?? 'overlay')
+  const settingsMode = createMemo(() => props.settingsMode ?? 'always')
 
-  return (
-    <div class="pointer-events-none inset-x-0 bottom-3 fixed z-50">
-      <div class="mx-auto px-3 max-w-3xl w-full">
-        <div
-          class="rounded-2xl pointer-events-auto hover:scale-100"
-          classList={{
-            'bg-card/80 border border-border/80 backdrop-blur-xl scale-100': focused(),
-            'bg-transparent scale-[0.98]': !focused(),
-          }}
-          style={{
-            'margin-inline': 'auto',
-            'width': focused() ? '100%' : '92%',
-            'transition': 'width 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-        >
-          <div class="p-3">
-            <div
-              class="flex flex-wrap gap-2 overflow-hidden"
-              style={{
-                'max-height': focused() ? '208px' : '0px',
-                'opacity': focused() ? '1' : '0',
-                'margin-bottom': focused() ? '0.5rem' : '0',
-                'pointer-events': focused() ? 'auto' : 'none',
-                'transition': 'max-height 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease, margin-bottom 180ms ease',
-              }}
-            >
-              <For each={quickPrompts}>
-                {prompt => (
-                  <button
-                    type="button"
-                    class="text-xs text-foreground/80 px-3 py-1 border border-border/70 rounded-full bg-background/60 transition-colors hover:bg-background"
-                    onPointerDown={e => e.preventDefault()}
-                    onClick={() => {
-                      setMessage(prev => (prev ? `${prev} ${prompt}` : prompt))
-                      textareaRef?.focus()
-                      scheduleResize()
-                    }}
-                  >
-                    {prompt}
-                  </button>
-                )}
-              </For>
-            </div>
+  const isActive = createMemo(() => focused() || message().trim().length > 0)
+  const isHoverOrActive = createMemo(() => hovered() || isActive())
 
-            <div class="relative">
-              <TextField>
-                <TextFieldTextArea
-                  ref={textareaRef}
-                  rows={1}
-                  value={message()}
-                  placeholder={props.placeholder ?? 'Describe what kinds of achievements you want more of…'}
-                  onInput={(e) => {
-                    const el = e.currentTarget as HTMLTextAreaElement
-                    setMessage(el.value)
-                    autoResize(el)
-                  }}
-                  onKeyDown={onKeyDown}
-                  onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
-                  class="text-sm py-4 pl-4 pr-12 outline-none rounded-3xl max-h-64 min-h-14 resize-none shadow-black shadow-xl transition-colors duration-200"
-                  classList={{
-                    'bg-transparent border border-border/60 shadow-[0_0_0_1px_rgba(255,255,255,0.16)_inset]': focused(),
-                    'bg-transparent border border-transparent': !focused(),
-                  }}
-                />
-              </TextField>
+  const showSettingsRow = createMemo(() =>
+    settingsMode() === 'always' || (settingsMode() === 'active' && isHoverOrActive()),
+  )
+
+  const showBackground = createMemo(() =>
+    position() === 'inline' || showSettingsRow() || isActive(),
+  )
+
+  const reasoningOptions: ReasoningEffort[] = ['none', 'low', 'med', 'high']
+  const reasoningIcons: Record<ReasoningEffort, string> = {
+    none: 'i-speedometer-none',
+    low: 'i-speedometer-low',
+    med: 'i-speedometer-med',
+    high: 'i-speedometer-high',
+  }
+
+  function reasoningLabel(effort?: ReasoningEffort) {
+    if (!effort)
+      return 'None'
+
+    switch (effort) {
+      case 'none':
+        return 'None'
+      case 'low':
+        return 'Low'
+      case 'med':
+        return 'Medium'
+      case 'high':
+        return 'High'
+    }
+  }
+
+  const inner = (
+    <div
+      class="border rounded-2xl pointer-events-auto"
+      classList={{
+        'bg-card/80 border-border/80 backdrop-blur-xl shadow-lg shadow-black/40': showBackground(),
+        'bg-transparent border-transparent': !showBackground() && position() === 'overlay',
+      }}
+      style={{
+        'margin-inline': position() === 'overlay' ? 'auto' : undefined,
+        'width': position() === 'overlay' ? (focused() ? '100%' : '92%') : '100%',
+        'transition':
+          'width 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div class="p-3 space-y-3">
+        {showSettingsRow() && (
+          <div class="flex flex-wrap gap-2 items-center justify-between">
+            <div class="flex flex-wrap gap-2 items-center">
               <Button
-                aria-label="Send"
-                class="rounded-full bottom-2 right-2 absolute"
-                size="icon"
-                onClick={send}
-                disabled={!message().trim().length || sending()}
+                type="button"
+                variant="outline"
+                size="sm"
+                class="text-xs px-3 rounded-full h-9"
               >
-                <span class="i-ph:arrow-up-bold size-5" />
+                <span class="i-ph-brain-duotone size-4" />
+                <span class="truncate">Model</span>
+                <span class="i-ph-caret-down-duotone size-4" />
+              </Button>
+              <Select
+                options={reasoningOptions}
+                value={reasoningEffort()}
+                onChange={value => setReasoningEffort(value ?? 'none')}
+                itemComponent={props => (
+                  <SelectItem item={props.item}>
+                    <div class="flex gap-2 items-center">
+                      <span class={`${reasoningIcons[props.item.rawValue]} size-4`} />
+                      <span class="text-xs">{reasoningLabel(props.item.rawValue)}</span>
+                    </div>
+                  </SelectItem>
+                )}
+              >
+                <SelectTrigger class="text-xs px-3 rounded-full h-9 min-w-36">
+                  <div class="flex gap-2 items-center">
+                    <span class={`${reasoningIcons[reasoningEffort()]} size-4`} />
+                    <span class="truncate">{reasoningLabel(reasoningEffort())}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent />
+              </Select>
+            </div>
+            <div class="ml-auto flex gap-1.5 items-center">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                class="text-xs px-3 rounded-full h-9"
+              >
+                <span class="i-ph-magnifying-glass-duotone mr-1 size-4" />
+                <span>Search</span>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="rounded-full h-9 w-9"
+              >
+                <span class="i-ph-paperclip-duotone size-5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="rounded-full h-9 w-9"
+              >
+                <span class="i-ph-gear-six-duotone size-5" />
               </Button>
             </div>
           </div>
+        )}
+
+        <div class="relative">
+          <TextField>
+            <TextFieldTextArea
+              ref={textareaRef}
+              rows={1}
+              value={message()}
+              placeholder={props.placeholder ?? 'Describe what kinds of achievements you want more of…'}
+              onInput={(e) => {
+                const el = e.currentTarget as HTMLTextAreaElement
+                setMessage(el.value)
+                autoResize(el)
+              }}
+              onKeyDown={onKeyDown}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              class="text-sm py-4 pl-4 pr-12 outline-none border rounded-3xl bg-card/90 max-h-64 min-h-14 resize-none shadow-black/40 shadow-xl transition-colors duration-200 backdrop-blur-sm"
+              classList={{
+                'border-border/60 shadow-[0_0_0_1px_rgba(255,255,255,0.16)_inset]': focused(),
+                'border-transparent': !focused(),
+              }}
+            />
+          </TextField>
+          <Button
+            aria-label="Send"
+            class="rounded-full bottom-2 right-2 absolute"
+            size="icon"
+            onClick={send}
+            disabled={!message().trim().length || sending()}
+          >
+            <span class="i-ph:arrow-up-bold size-5" />
+          </Button>
         </div>
       </div>
     </div>
+  )
+
+  return (
+    <Show
+      when={position() === 'inline'}
+      fallback={(
+        <div class="pointer-events-none inset-x-0 bottom-3 fixed z-50">
+          <div class="mx-auto px-3 max-w-3xl w-full">
+            {inner}
+          </div>
+        </div>
+      )}
+    >
+      <div class="mx-auto max-w-3xl w-full">
+        {inner}
+      </div>
+    </Show>
   )
 }
 

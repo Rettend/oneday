@@ -6,3 +6,7 @@ keep_vars = true
 [assets]
 binding = "ASSETS"
 directory = ".output/public"
+
+[[kv_namespaces]]
+binding = "REGISTRY"
+id = "623d8b76dab74f37b63d66cbe55588c4"

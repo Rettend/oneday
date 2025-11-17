@@ -20,10 +20,11 @@ export const LevelPill: Component<LevelPillProps> = (props) => {
   const clampedNext = createMemo(() => Math.max(1, props.nextLevelXp))
   const percent = createMemo(() => Math.min(100, Math.round((clampedCurrent() / clampedNext()) * 100)))
 
-  const showIconMode = () => props.forceIconMode || false
+  const showIconMode = createMemo(() => props.forceIconMode || false)
+  const containerClass = createMemo(() => cn(showIconMode() ? 'inline-flex items-center justify-center' : 'w-full', props.class))
 
   return (
-    <div class={cn('w-full', props.class)}>
+    <div class={containerClass()}>
       <Show when={!showIconMode()}>
         <div class="w-full hidden lg:inline-flex">
           {props.href

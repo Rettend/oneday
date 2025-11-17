@@ -1,3 +1,4 @@
+import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders'
 import { presetShadcn } from '@rttnd/unocss-preset-shadcn'
 import {
   defineConfig,
@@ -30,6 +31,12 @@ export default defineConfig({
       extraProperties: {
         'display': 'inline-block',
         'vertical-align': 'middle',
+      },
+      collections: {
+        speedometer: FileSystemIconLoader(
+          './src/assets/speedometer',
+          svg => svg.replace(/^<svg /, '<svg fill="currentColor" '),
+        ),
       },
     }),
     presetTypography(),

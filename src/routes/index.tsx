@@ -87,24 +87,28 @@ export default function Home() {
             </div>
           </div>
           <div class="mt-2 gap-4 grid max-w-md w-full md:grid-cols-2">
-            <A
+            <Button
+              as={A}
+              variant="outline"
+              class="group px-6 py-5 text-left rounded-2xl flex gap-3 h-auto items-center"
               href="/c"
-              class="group px-6 py-5 text-left border border-border/80 rounded-2xl bg-background/70 flex gap-3 transition-colors items-center hover:border-primary/40 hover:bg-primary/6"
             >
               <span class="text-primary rounded-full bg-primary/10 inline-flex size-9 items-center justify-center">
                 <span class="i-ph-chat-circle-dots-duotone size-5" />
               </span>
               <div class="text-lg font-semibold">Chat</div>
-            </A>
-            <A
+            </Button>
+            <Button
+              as={A}
               href="/q/today"
-              class="group px-6 py-5 text-left border border-border/80 rounded-2xl bg-background/70 flex gap-3 transition-colors items-center hover:border-primary/40 hover:bg-primary/6"
+              variant="outline"
+              class="group px-6 py-5 text-left rounded-2xl flex gap-3 h-auto items-center"
             >
               <span class="text-primary rounded-full bg-primary/10 inline-flex size-9 items-center justify-center">
                 <span class="i-ph-sword-duotone size-5" />
               </span>
-              <div class="text-lg font-semibold">Quest</div>
-            </A>
+              <div class="text-lg font-semibold">Quest (WIP)</div>
+            </Button>
           </div>
         </section>
       </Show>

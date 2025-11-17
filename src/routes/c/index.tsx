@@ -1,17 +1,28 @@
 import { Protected } from '@rttnd/gau/client/solid'
+import { useNavigate } from '@solidjs/router'
+import { LLMInput } from '~/components/chat/LLMInput'
+import { uuidV7Base58 } from '~/utils'
 
-export default Protected(ChatPage, '/')
+export default Protected(ChatLandingPage, '/')
 
-function ChatPage() {
+function ChatLandingPage() {
+  const navigate = useNavigate()
+
+  function handleSend(_message: string) {
+    const id = uuidV7Base58()
+    navigate(`/c/${id}`)
+  }
+
   return (
-    <section class="flex flex-col gap-4">
-      <header class="flex gap-3 items-center justify-between">
-        <h1 class="text-2xl tracking-tight font-semibold">Chat</h1>
-        <span class="text-xs text-muted-foreground">Oneday Chat · WIP</span>
-      </header>
-      <div class="text-muted-foreground">
-        This is the future home of the LLM chat experience. We&apos;ll add conversations, model picker, and settings here.
+    <section class="flex flex-col gap-8 min-h-[70vh] items-center justify-center">
+      <div class="text-center max-w-2xl w-full space-y-3">
+        <h1 class="text-3xl tracking-tight font-semibold">Oneday Chat</h1>
       </div>
+      <LLMInput
+        placeholder="What should we think through together?"
+        onSend={handleSend}
+        position="inline"
+      />
     </section>
   )
 }
