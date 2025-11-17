@@ -66,9 +66,6 @@
     "wrangler": "^4.47.0",
     "zod": "^4.1.12"
   },
-  "overrides": {
-    "vite": "npm:rolldown-vite@latest"
-  },
   "trustedDependencies": [
     "@parcel/watcher",
     "esbuild",
