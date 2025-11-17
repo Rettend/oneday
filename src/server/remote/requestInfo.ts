@@ -16,13 +16,16 @@ export const getConnectionInfo = query(async () => {
   const event = getRequestEvent()
   const nativeEvent = (event as any)?.nativeEvent
 
-  // Try multiple possible locations for the Cloudflare request object so this
-  // keeps working even if the adapter changes how it wires things up.
+  // Mirror how we access env in `getRegistry`: everything hangs off
+  // `event.nativeEvent.context.cloudflare`.
+  const cloudflare = nativeEvent?.context?.cloudflare
+
+  // Prefer the Cloudflare request hanging off the same object that provides `env`,
+  // and fall back to the other known locations just in case.
   const request
-    = (event?.request as Request & { cf?: Record<string, unknown> }) //
+    = (cloudflare?.request as Request & { cf?: Record<string, unknown> })
       ?? (nativeEvent?.request as Request & { cf?: Record<string, unknown> })
-      ?? (nativeEvent?.context?.cloudflare?.request as Request & { cf?: Record<string, unknown> })
-      ?? (nativeEvent?.node?.req as Request & { cf?: Record<string, unknown> })
+      ?? (event?.request as Request & { cf?: Record<string, unknown> })
 
   const cf = request?.cf as
     | (ConnectionInfo & {
@@ -40,8 +43,8 @@ export const getConnectionInfo = query(async () => {
     hasEvent: !!event,
     hasRequest: !!event?.request,
     hasNativeRequest: !!nativeEvent?.request,
-    hasCloudflareRequest: !!nativeEvent?.context?.cloudflare?.request,
-    hasNodeReq: !!nativeEvent?.node?.req,
+    hasCloudflare: !!cloudflare,
+    hasCloudflareRequest: !!cloudflare?.request,
     hasCf: !!cf,
   })
 
