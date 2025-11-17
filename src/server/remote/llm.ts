@@ -23,7 +23,7 @@ export const getChatModels = query(async () => {
   const registry = getRegistry()
   const models = await registry.searchModels({
     capability: 'text',
-    status: 'active',
+    status: 'latest',
     minIq: 0,
     minSpeed: 0,
   })

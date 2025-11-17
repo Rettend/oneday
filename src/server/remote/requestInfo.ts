@@ -36,5 +36,7 @@ export const getConnectionInfo = query(async () => {
     colo: cf.colo ?? null,
   }
 
+  console.log(info)
+
   return info
 }, getConnectionInfoId)
