@@ -14,9 +14,9 @@
         "@kobalte/core": "^0.13.11",
         "@libsql/client": "catalog:prod",
         "@openrouter/ai-sdk-provider": "^2.0.2",
-        "@rttnd/agents": "^0.3.7",
+        "@rttnd/agents": "^0.3.8",
         "@rttnd/ai-chat": "^0.0.5",
-        "@rttnd/gau": "^1.3.0",
+        "@rttnd/gau": "^1.3.1",
         "@rttnd/llm": "^1.3.0",
         "@solid-primitives/scheduled": "^1.5.2",
         "@solid-primitives/storage": "^4.3.3",
@@ -591,11 +591,11 @@
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.53.3", "", { "os": "win32", "cpu": "x64" }, "sha512-UhTd8u31dXadv0MopwGgNOBpUVROFKWVQgAg5N1ESyCz8AuBcMqm4AuTjrwgQKGDfoFuz02EuMRHQIw/frmYKQ=="],
 
-    "@rttnd/agents": ["@rttnd/agents@0.3.7", "", { "dependencies": { "@cfworker/json-schema": "^4.1.1", "@modelcontextprotocol/sdk": "1.25.2", "cron-schedule": "^6.0.0", "json-schema": "^0.4.0", "json-schema-to-typescript": "^15.0.4", "mimetext": "^3.0.27", "nanoid": "^5.1.6", "partyserver": "^0.1.0", "partysocket": "1.1.10", "yargs": "^18.0.0" }, "peerDependencies": { "@ai-sdk/openai": "^3.0.0", "@ai-sdk/react": "^3.0.0", "@cloudflare/codemode": "^0.0.5", "@rttnd/ai-chat": "^0.0.4", "ai": "^6.0.0", "react": "^19.0.0", "solid-js": "^1.8.0", "viem": ">=2.0.0", "x402": "^0.7.1", "zod": "^3.25.0 || ^4.0.0" }, "optionalPeers": ["@ai-sdk/openai", "@ai-sdk/react", "solid-js", "viem", "x402"], "bin": { "agents": "dist/cli/index.js" } }, "sha512-Al0/YODvh4ZGqWe8vyCrA+yOC6g7m6P14Hw8YgJNvytT0EyT4UsUpPGTTgeHTsgGnKfHqUXNWYWDFJzXR9W8sg=="],
+    "@rttnd/agents": ["@rttnd/agents@0.3.8", "", { "dependencies": { "@cfworker/json-schema": "^4.1.1", "@modelcontextprotocol/sdk": "1.25.2", "cron-schedule": "^6.0.0", "json-schema": "^0.4.0", "json-schema-to-typescript": "^15.0.4", "mimetext": "^3.0.27", "nanoid": "^5.1.6", "partyserver": "^0.1.0", "partysocket": "1.1.10", "yargs": "^18.0.0" }, "peerDependencies": { "@ai-sdk/openai": "^3.0.0", "@ai-sdk/react": "^3.0.0", "@cloudflare/codemode": "^0.0.5", "@rttnd/ai-chat": "^0.0.4", "ai": "^6.0.0", "react": "^19.0.0", "solid-js": "^1.8.0", "viem": ">=2.0.0", "x402": "^0.7.1", "zod": "^3.25.0 || ^4.0.0" }, "optionalPeers": ["@ai-sdk/openai", "@ai-sdk/react", "solid-js", "viem", "x402"], "bin": { "agents": "dist/cli/index.js" } }, "sha512-fKtGm+MLpz2t9cH20RoJuxVPSiN3g7wXNn8frymIgtAa6VTDmYGtQxhPInr2pshzs9XPyJsH3c4wYvB+cUA2rA=="],
 
     "@rttnd/ai-chat": ["@rttnd/ai-chat@0.0.5", "", { "peerDependencies": { "@rttnd/agents": "^0.3.4", "ai": "^6.0.0", "react": "^19.0.0", "solid-js": "^1.8.0", "zod": "^3.25.0 || ^4.0.0" } }, "sha512-mi7v+WU5j83Xda02Ss4hY4eOCOFpPspXC77aBgYU70gYlTtsmTlqVf9ZwSExGsbEy+saedN7on2h2CxPgrlYlw=="],
 
-    "@rttnd/gau": ["@rttnd/gau@1.3.0", "", { "dependencies": { "@oslojs/jwt": "^0.3.0", "arctic": "^3.7.0", "cookie": "^1.1.1", "esm-env": "^1.2.2" }, "peerDependencies": { "@solidjs/router": "^0.15.3", "@sveltejs/kit": "^2.25.1", "@tauri-apps/api": "^2.6.0", "@tauri-apps/plugin-opener": "^2.3.0", "@tauri-apps/plugin-shell": "^2.3.0", "drizzle-orm": "^0.44.3", "solid-js": "^1.9.7", "svelte": "^5.41.1", "typescript": "^5.8.3" }, "optionalPeers": ["@solidjs/router", "@sveltejs/kit", "@tauri-apps/api", "@tauri-apps/plugin-opener", "@tauri-apps/plugin-shell", "drizzle-orm", "solid-js", "svelte", "typescript"], "bin": { "gau": "dist/src/cli/index.js" } }, "sha512-487FEAEoQlNzSW6BXBc4wL7JVb61w6fGJicDz0IPDubT5AoIBgj1UGn2SkzUnS0g+ev+FmLjXio0BsPHyaY4EA=="],
+    "@rttnd/gau": ["@rttnd/gau@1.3.1", "", { "dependencies": { "@oslojs/jwt": "^0.3.0", "arctic": "^3.7.0", "cookie": "^1.1.1", "esm-env": "^1.2.2" }, "peerDependencies": { "@solidjs/router": "^0.15.3", "@sveltejs/kit": "^2.25.1", "@tauri-apps/api": "^2.6.0", "@tauri-apps/plugin-opener": "^2.3.0", "@tauri-apps/plugin-shell": "^2.3.0", "drizzle-orm": "^0.44.3", "solid-js": "^1.9.7", "svelte": "^5.41.1", "typescript": "^5.8.3" }, "optionalPeers": ["@solidjs/router", "@sveltejs/kit", "@tauri-apps/api", "@tauri-apps/plugin-opener", "@tauri-apps/plugin-shell", "drizzle-orm", "solid-js", "svelte", "typescript"], "bin": { "gau": "dist/src/cli/index.js" } }, "sha512-gagrEPGsG/OjHo8fbMoNn0qQOT7zdu0pqdxS2D5pphAhuKSRe64nouzmcdRULTPuSTLOQV8pMeG5Po7GNizfTA=="],
 
     "@rttnd/llm": ["@rttnd/llm@1.3.0", "", { "dependencies": { "@elysiajs/eden": "^1.4.4", "@rttnd/llm-shared": "^1.3.0", "unstorage": "^1.17.2" } }, "sha512-ELqVNlqG9Yei4rioKF6aFvLjW4FUAXq+wSKkOw9yBwnFRW5V9ofiy6jqle0JqKB/OjenKW8BkpU9MzWinvW8TQ=="],
 

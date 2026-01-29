@@ -5,9 +5,9 @@ import { createEffect, createSignal, For, onMount, Show } from 'solid-js'
 import { LLMInput } from '~/components/chat/LLMInput'
 import { createChatSession, DEFAULT_MODEL_LABEL } from '~/components/chat/useChatSession'
 
-// export default Protected(ChatConversationPage, '/')
+export default Protected(ChatConversationPage, '/')
 
-export default function ChatConversationPage() {
+function ChatConversationPage() {
   const params = useParams()
   const location = useLocation<{ initialMessage?: string }>()
   const conversationId = params.id
