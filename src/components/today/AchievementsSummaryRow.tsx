@@ -21,7 +21,7 @@ export const AchievementsSummaryRow: Component<AchievementsSummaryRowProps> = (p
     <section class={props.class} aria-label="Achievements in progress">
       <header class="flex min-h-10 items-center justify-between">
         <h2 class="text-sm tracking-tight font-semibold">In-progress achievements</h2>
-        <A href="/achievements/progress" class="text-xs text-primary hover:text-primary/80">View all</A>
+        <A href="/q/achievements/progress" class="text-xs text-primary hover:text-primary/80">View all</A>
       </header>
       <div class="mt-1 pr-1 flex flex-col gap-3 max-h-96 overflow-y-auto">
         <For each={limited()}>

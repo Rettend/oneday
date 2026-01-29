@@ -1,6 +1,8 @@
 /// <reference types="@solidjs/start/env" />
+/// <reference types="@cloudflare/workers-types" />
 
 import type { GauSession, ProviderIds } from '@rttnd/gau'
+import type { ChatAgent } from './agents/chat'
 import type { Auth } from './server/auth'
 
 declare global {
@@ -9,16 +11,19 @@ declare global {
       getSession: () => Promise<GauSession<ProviderIds<Auth>>>
     }
   }
-}
 
-interface CloudflareEnv {
-  REGISTRY: KVNamespace
+  interface Env {
+    AI: Ai
+    ASSETS: Fetcher
+    REGISTRY: KVNamespace
+    ChatAgent: DurableObjectNamespace<ChatAgent>
+  }
 }
 
 declare module 'vinxi/http' {
   interface H3EventContext {
     cloudflare?: {
-      env?: CloudflareEnv
+      env?: Env
       request?: Request
     }
   }

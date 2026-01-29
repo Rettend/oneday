@@ -4,6 +4,7 @@ export type Path =
   | '/'
   | '/c'
   | '/c/:id'
+  | '/c/settings'
   | '/q'
   | '/q/achievements'
   | '/q/achievements/discover'

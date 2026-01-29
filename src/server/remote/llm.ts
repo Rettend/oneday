@@ -1,8 +1,9 @@
-import type { Model } from '@rttnd/llm'
+import type { Model, Provider } from '@rttnd/llm'
 import { query } from '@solidjs/router'
 import { getRegistry } from '../llm/registry'
 
 const getChatModelsId = 'llm:getChatModels'
+const getChatProvidersId = 'llm:getChatProviders'
 
 const SUPPORTED_PROVIDERS = new Set(['openai', 'groq', 'google', 'azure'])
 
@@ -15,6 +16,13 @@ export interface ChatModelSummary {
   iq?: number | null
   speed?: number | null
   capabilities?: Model['capabilities']
+}
+
+export interface ChatProviderSummary {
+  id: string
+  name: string
+  keyPlaceholder?: string | null
+  website?: string | null
 }
 
 export const getChatModels = query(async () => {
@@ -44,3 +52,22 @@ export const getChatModels = query(async () => {
     capabilities: model.capabilities,
   }))
 }, getChatModelsId)
+
+export const getChatProviders = query(async () => {
+  'use server'
+
+  const registry = getRegistry()
+  const { data: providers } = await registry.getProviders()
+
+  if (!providers)
+    return [] as ChatProviderSummary[]
+
+  const filtered = providers.filter(provider => SUPPORTED_PROVIDERS.has(provider.value))
+
+  return filtered.map<ChatProviderSummary>((provider: Provider) => ({
+    id: provider.value,
+    name: provider.name,
+    keyPlaceholder: provider.keyPlaceholder ?? null,
+    website: provider.website ?? null,
+  }))
+}, getChatProvidersId)

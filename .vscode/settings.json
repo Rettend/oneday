@@ -49,5 +49,6 @@
     "scss",
     "pcss",
     "postcss"
-  ]
+  ],
+  "git.ignoreLimitWarning": true
 }

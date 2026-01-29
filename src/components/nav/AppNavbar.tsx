@@ -178,15 +178,15 @@ const ChatSidebar: Component = () => {
   return (
     <SidebarShell
       footer={(
-        <button
-          type="button"
+        <A
+          href="/c/settings"
           class={`text-13px text-primary font-medium mx-a border border-border/70 rounded-full bg-background/80 inline-flex gap-2 h-10 w-10 items-center justify-center hover:text-foreground hover:bg-primary/5 ${
             ui.local.sidebarCollapsedLg ? '' : 'lg:w-full lg:mx-0'
           }`}
         >
           <span class="i-ph-gear-six-duotone size-5" />
           <span class={`hidden ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>Chat settings</span>
-        </button>
+        </A>
       )}
     >
       <div class="nav-scroll px-2 pb-2 pt-3 [scroll-behavior:smooth] inset-0 absolute overflow-y-auto space-y-4">

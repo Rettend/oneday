@@ -32,8 +32,8 @@ export function UIStoreProvider(props: ParentProps) {
   })
   const [local, _setLocal] = makePersisted([baseLocal, setBaseLocal], {
     name: 'UI',
-    storage: window.localStorage,
-    sync: storageSync,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    sync: typeof window !== 'undefined' ? storageSync : undefined,
   })
 
   const actions: UIStoreActions = {

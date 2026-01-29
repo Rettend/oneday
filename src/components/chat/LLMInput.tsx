@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js'
-import { createMemo, createSignal, onMount, Show } from 'solid-js'
+import { createEffect, createMemo, createSignal, onMount, Show } from 'solid-js'
 import { Button } from '~/components/ui/button'
 import {
   Select,
@@ -15,7 +15,7 @@ type ReasoningEffort = 'none' | 'low' | 'med' | 'high'
 
 interface LLMInputProps {
   placeholder?: string
-  onSend?: (message: string) => void
+  onSend?: (message: string) => void | Promise<void>
   /**
    * Where the input should be rendered.
    * - `inline`: rendered in the document flow
@@ -32,6 +32,9 @@ interface LLMInputProps {
    * Defaults to `always`.
    */
   settingsMode?: LLMInputSettingsMode
+  disabled?: boolean
+  prefill?: string
+  onPrefillApplied?: () => void
 }
 
 export const LLMInput: Component<LLMInputProps> = (props) => {
@@ -55,13 +58,15 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
     })
   }
 
-  function send() {
+  async function send() {
     const text = message().trim()
     if (!text || sending())
       return
     setSending(true)
     try {
-      props.onSend?.(text)
+      const result = props.onSend?.(text)
+      if (result && typeof (result as Promise<void>).then === 'function')
+        await result
       setMessage('')
       scheduleResize()
     }
@@ -74,7 +79,7 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
   function onKeyDown(e: KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      send()
+      void send()
     }
   }
 
@@ -88,6 +93,8 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
 
   const isActive = createMemo(() => focused() || message().trim().length > 0)
   const isHoverOrActive = createMemo(() => hovered() || isActive())
+
+  const disabled = createMemo(() => Boolean(props.disabled) || sending())
 
   const showSettingsRow = createMemo(() =>
     settingsMode() === 'always' || (settingsMode() === 'active' && isHoverOrActive()),
@@ -120,6 +127,15 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
         return 'High'
     }
   }
+
+  createEffect(() => {
+    if (props.prefill === undefined)
+      return
+    setMessage(props.prefill)
+    scheduleResize()
+    textareaRef?.focus()
+    props.onPrefillApplied?.()
+  })
 
   const inner = (
     <div
@@ -210,6 +226,7 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
               rows={1}
               value={message()}
               placeholder={props.placeholder ?? 'Describe what kinds of achievements you want more of…'}
+              disabled={disabled()}
               onInput={(e) => {
                 const el = e.currentTarget as HTMLTextAreaElement
                 setMessage(el.value)
@@ -229,8 +246,10 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
             aria-label="Send"
             class="rounded-full bottom-2 right-2 absolute"
             size="icon"
-            onClick={send}
-            disabled={!message().trim().length || sending()}
+            onClick={() => {
+              void send()
+            }}
+            disabled={!message().trim().length || disabled()}
           >
             <span class="i-ph:arrow-up-bold size-5" />
           </Button>

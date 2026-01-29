@@ -1,16 +1,19 @@
 import { Protected } from '@rttnd/gau/client/solid'
 import { useNavigate } from '@solidjs/router'
 import { LLMInput } from '~/components/chat/LLMInput'
-import { uuidV7Base58 } from '~/utils'
+import { uuidV7Base58 } from '~/utils/ids'
 
 export default Protected(ChatLandingPage, '/')
 
 function ChatLandingPage() {
   const navigate = useNavigate()
 
-  function handleSend(_message: string) {
-    const id = uuidV7Base58()
-    navigate(`/c/${id}`)
+  async function handleSend(message: string) {
+    const trimmed = message.trim()
+    if (!trimmed)
+      return
+    const conversationId = uuidV7Base58()
+    navigate(`/c/${conversationId}`, { state: { initialMessage: trimmed } })
   }
 
   return (
