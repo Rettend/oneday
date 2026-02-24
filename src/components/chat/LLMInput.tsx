@@ -225,7 +225,7 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
               ref={textareaRef}
               rows={1}
               value={message()}
-              placeholder={props.placeholder ?? 'Describe what kinds of achievements you want more of…'}
+              placeholder={props.placeholder ?? 'What should we focus on today?'}
               disabled={disabled()}
               onInput={(e) => {
                 const el = e.currentTarget as HTMLTextAreaElement

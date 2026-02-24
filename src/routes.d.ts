@@ -2,10 +2,11 @@
 
 export type Path =
   | '/'
-  | '/c'
-  | '/c/:id'
-  | '/c/settings'
+  | '/activity'
+  | '/chat/:id'
+  | '/dashboard'
+  | '/settings'
 
 export type Params = {
-  '/c/:id': { id: string }
+  '/chat/:id': { id: string }
 }

@@ -18,7 +18,7 @@ const SidebarShell: ParentComponent<{ footer?: JSX.Element }> = (props) => {
             <div class="border border-border/80 rounded-2xl bg-background/55 h-full shadow-sm backdrop-blur-xl">
               <div class="flex flex-col h-full">
                 <A
-                  href="/"
+                  href="/dashboard"
                   class="mx-1.5 mt-1.5 rounded-full inline-flex gap-3 transition-colors duration-200 items-center"
                   classList={{
                     'justify-center py-0': !isCollapsed(),
@@ -195,12 +195,13 @@ const AppSidebar: Component = () => {
           <div class={`ml-3 pl-3 border-l border-border/70 hidden space-y-1 ${ui.local.sidebarCollapsedLg ? '' : 'lg:block'}`}>
             <For each={history}>
               {item => (
-                <A
-                  href={`/chat/${item.id}`}
+                <button
+                  type="button"
                   class="text-13px text-primary px-3 py-2 text-left text-start rounded-full w-full hover:text-foreground hover:bg-primary/6"
+                  onClick={() => navigate(`/chat/${item.id}`)}
                 >
                   <span class="truncate">{item.title}</span>
-                </A>
+                </button>
               )}
             </For>
           </div>

@@ -6,9 +6,9 @@ import { Button } from '~/components/ui/button'
 import { listApiKeys, upsertApiKey } from '~/server/remote/apiKeys'
 import { getChatProviders } from '~/server/remote/llm'
 
-export default Protected(ChatSettingsPage, '/')
+export default Protected(SettingsPage, '/')
 
-function ChatSettingsPage() {
+function SettingsPage() {
   const savedProviders = createAsync(() => listApiKeys())
   const providerList = createAsync(() => getChatProviders())
   const upsert = useAction(upsertApiKey)
@@ -31,26 +31,24 @@ function ChatSettingsPage() {
 
   return (
     <section class="flex flex-col gap-4">
-      <header class="flex gap-3 items-center justify-between">
-        <div>
-          <h1 class="text-2xl tracking-tight font-semibold">Chat settings</h1>
-          <p class="text-xs text-muted-foreground">
-            Connect your own API keys. Keys are stored encrypted and never shown again after saving.
-          </p>
-        </div>
+      <header class="flex flex-col gap-2">
+        <h1 class="text-3xl tracking-tight font-semibold">Settings</h1>
+        <p class="text-sm text-muted-foreground">
+          Bring your own API keys for model providers. Keys are encrypted and never displayed after saving.
+        </p>
       </header>
 
       <div class="p-4 border border-border/70 rounded-xl bg-card/80 space-y-4">
         <div class="space-y-1">
-          <h2 class="text-sm font-semibold">Providers</h2>
+          <h2 class="text-sm font-semibold">BYOK providers</h2>
           <p class="text-xs text-muted-foreground">
-            Oneday will use these keys for calls to each provider. You can clear a key at any time.
+            Configure one key per provider. Clearing a key disables that provider for future chats.
           </p>
         </div>
 
         <Show
           when={providerList()}
-          fallback={<p class="text-xs text-muted-foreground">Loading providers…</p>}
+          fallback={<p class="text-xs text-muted-foreground">Loading providers...</p>}
         >
           {providers => (
             <div class="space-y-3">

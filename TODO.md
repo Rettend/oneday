@@ -7,12 +7,12 @@
 - [x] Delete all `/q` routes (`today.tsx`, `questboard.tsx`, `activity.tsx`, `deadlines.tsx`, `rules.tsx`, `settings.tsx`, `achievements/*`)
 - [x] Delete `/q/index.tsx` layout
 - [x] Delete `QuestSidebar` from `AppNavbar.tsx`
-- [ ] Remove `LevelPill` import and usage from the navbar
-- [ ] Remove the dual-sidebar `Switch` logic in `AppNavbar` (no more `/c` vs `/q` detection)
+- [x] Remove `LevelPill` import and usage from the navbar
+- [x] Remove the dual-sidebar `Switch` logic in `AppNavbar` (no more `/c` vs `/q` detection)
 - [x] Delete the `components/today/` folder
 - [x] Delete the `components/achievements/` folder
 - [x] Delete the `components/todo/` folder
-- [ ] Clean up any orphaned imports across the codebase after deletions
+- [x] Clean up any orphaned imports across the codebase after deletions
 
 ## Phase 0.5 — Testing infrastructure
 
@@ -40,21 +40,21 @@
 
 ## Phase 1 — Restructure navigation and routes
 
-- [ ] Flatten route structure: move `/c/[id].tsx` → `/chat/[id].tsx`, `/c/settings.tsx` → `/settings.tsx`
-- [ ] Remove the old `/c` prefix route group
-- [ ] Create new routes: `/dashboard`, `/activity`, `/settings`, `/chat/[id]`
-- [ ] Make `/dashboard` the default authenticated landing page (redirect from `/` after login)
-- [ ] Unify the sidebar into one component (based on current `ChatSidebar` design)
+- [x] Flatten route structure: move `/c/[id].tsx` → `/chat/[id].tsx`, `/c/settings.tsx` → `/settings.tsx`
+- [x] Remove the old `/c` prefix route group
+- [x] Create new routes: `/dashboard`, `/activity`, `/settings`, `/chat/[id]`
+- [x] Make `/dashboard` the default authenticated landing page (redirect from `/` after login)
+- [x] Unify the sidebar into one component (based on current `ChatSidebar` design)
   - Top section: nav items (Dashboard, Activity, Settings)
   - Middle section: Projects (chat project folders)
   - Bottom section: History (recent conversations)
   - Footer: settings gear
-- [ ] Remove the `SidebarShell` dual-mode and `AppNavbar` switch — just one sidebar always
-- [ ] Update `app.tsx` to use the unified sidebar for all authenticated routes
-- [ ] Update the home page (`/`) to show login when unauthenticated, redirect to `/dashboard` when authenticated
-- [ ] Add floating `LLMInput` (with `position="overlay"`) to the app shell so it appears on every page
-- [ ] Wire the floating input to open/create a "daily" conversation or the most recent chat
-- [ ] Update `router.ts` and typed routes after route changes
+- [x] Remove the `SidebarShell` dual-mode and `AppNavbar` switch — just one sidebar always
+- [x] Update `app.tsx` to use the unified sidebar for all authenticated routes
+- [x] Update the home page (`/`) to show login when unauthenticated, redirect to `/dashboard` when authenticated
+- [x] Add floating `LLMInput` (with `position="overlay"`) to the app shell so it appears on every page
+- [x] Wire the floating input to open/create a "daily" conversation or the most recent chat
+- [x] Update `router.ts` and typed routes after route changes
 
 ## Phase 2 — Tauri desktop shell
 

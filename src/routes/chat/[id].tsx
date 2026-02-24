@@ -1,39 +1,61 @@
 import type { UIMessage } from 'ai'
+import type { ChatSendDetail } from '~/components/chat/events'
 import { Protected } from '@rttnd/gau/client/solid'
 import { useLocation, useParams } from '@solidjs/router'
-import { createEffect, createSignal, For, onMount, Show } from 'solid-js'
-import { LLMInput } from '~/components/chat/LLMInput'
+import { createEffect, For, onCleanup, onMount, Show } from 'solid-js'
+import { CHAT_SEND_EVENT } from '~/components/chat/events'
 import { createChatSession, DEFAULT_MODEL_LABEL } from '~/components/chat/useChatSession'
+
+interface ChatRouteState {
+  initialMessage?: string
+  initialMessageId?: string
+}
 
 export default Protected(ChatConversationPage, '/')
 
 function ChatConversationPage() {
   const params = useParams()
-  const location = useLocation<{ initialMessage?: string }>()
+  const location = useLocation<ChatRouteState>()
   const conversationId = params.id
 
   const chat = createChatSession({ conversationId: conversationId ?? 'missing' })
-  const [prefill, setPrefill] = createSignal<string | undefined>()
+  const sentInitialMessageIds = new Set<string>()
   let messagesEndRef: HTMLDivElement | undefined
 
-  // Handle initial message from navigation state (only once)
-  onMount(() => {
-    const initialMessage = location.state?.initialMessage
-    if (!initialMessage || !conversationId)
+  function queueMessage(message?: string, messageId?: string) {
+    const trimmed = message?.trim()
+    if (!conversationId || !trimmed)
       return
 
-    // Use sessionStorage to track sent initial messages (persists across HMR)
-    const sentKey = `chat-initial-sent:${conversationId}`
-    if (sessionStorage.getItem(sentKey))
+    const dedupeId = messageId ?? `${conversationId}:initial`
+    if (sentInitialMessageIds.has(dedupeId))
       return
 
-    // Mark as sent immediately to prevent double-sends
-    sessionStorage.setItem(sentKey, '1')
-
-    // Wait for WebSocket connection to be ready before sending
+    sentInitialMessageIds.add(dedupeId)
     chat.onReady(() => {
-      void chat.sendMessage(initialMessage)
+      void chat.sendMessage(trimmed)
     })
+  }
+
+  onMount(() => {
+    if (!conversationId)
+      return
+
+    function handleShellSend(event: Event) {
+      const detail = (event as CustomEvent<ChatSendDetail>).detail
+      if (!detail || detail.conversationId !== conversationId)
+        return
+      queueMessage(detail.message, detail.messageId)
+    }
+
+    window.addEventListener(CHAT_SEND_EVENT, handleShellSend as EventListener)
+    onCleanup(() => {
+      window.removeEventListener(CHAT_SEND_EVENT, handleShellSend as EventListener)
+    })
+  })
+
+  createEffect(() => {
+    queueMessage(location.state?.initialMessage, location.state?.initialMessageId)
   })
 
   createEffect(() => {
@@ -41,13 +63,9 @@ function ChatConversationPage() {
       messagesEndRef?.scrollIntoView({ behavior: 'smooth' })
   })
 
-  async function handleSend(message: string) {
-    await chat.sendMessage(message)
-  }
-
   return (
     <Show when={conversationId} fallback={<MissingConversation />}>
-      <section class="mb-40 flex flex-col gap-4 min-h-[70vh] relative">
+      <section class="mb-16 flex flex-col gap-4 min-h-[70vh]">
         <header class="flex gap-3 items-center justify-between">
           <div>
             <h1 class="text-2xl tracking-tight font-semibold">Chat</h1>
@@ -60,7 +78,7 @@ function ChatConversationPage() {
             onClick={() => chat.clearHistory()}
             class="text-xs px-3 py-1.5 border border-border/70 rounded-lg transition-colors hover:bg-muted/50"
           >
-            Clear History
+            Clear history
           </button>
         </header>
 
@@ -72,35 +90,27 @@ function ChatConversationPage() {
             >
               <For each={chat.messages}>
                 {message => (
-                  <ChatMessage message={message} onEditUser={setPrefill} />
+                  <ChatMessage message={message} />
                 )}
               </For>
               <div ref={messagesEndRef} />
             </Show>
           </div>
         </div>
-
-        <LLMInput
-          placeholder="Type a message..."
-          onSend={handleSend}
-          position="overlay"
-          prefill={prefill()}
-          onPrefillApplied={() => setPrefill(undefined)}
-        />
       </section>
     </Show>
   )
 }
 
-function ChatMessage(props: { message: UIMessage, onEditUser?: (text: string) => void }) {
+function ChatMessage(props: { message: UIMessage }) {
   const isUser = () => props.message.role === 'user'
 
   function getTextContent(parts?: UIMessage['parts']) {
     if (!parts)
       return ''
     return parts
-      .filter((p): p is Extract<typeof p, { type: 'text' }> => p.type === 'text')
-      .map(p => p.text)
+      .filter((part): part is Extract<typeof part, { type: 'text' }> => part.type === 'text')
+      .map(part => part.text)
       .join('\n')
   }
 
@@ -113,15 +123,6 @@ function ChatMessage(props: { message: UIMessage, onEditUser?: (text: string) =>
             : 'bg-muted/60 border border-border/60 rounded-bl-md'
         }`}
       >
-        <Show when={isUser() && props.onEditUser}>
-          <button
-            type="button"
-            onClick={() => props.onEditUser?.(getTextContent(props.message.parts))}
-            class="text-xs mb-1 opacity-60 hover:opacity-100"
-          >
-            Edit
-          </button>
-        </Show>
         <div class="text-sm whitespace-pre-wrap">
           {getTextContent(props.message.parts)}
         </div>
@@ -142,7 +143,7 @@ function EmptyState() {
 
 function MissingConversation() {
   return (
-    <section class="mb-40 flex flex-col gap-4 min-h-[70vh] relative">
+    <section class="flex flex-col gap-4 min-h-[70vh]">
       <header class="flex gap-3 items-center justify-between">
         <div>
           <h1 class="text-2xl tracking-tight font-semibold">Chat</h1>

@@ -2,7 +2,7 @@ import { createAsync } from '@solidjs/router'
 import { createMemo, For, Show } from 'solid-js'
 import { Button } from '~/components/ui/button'
 import { useAuth } from '~/lib/auth'
-import { A } from '~/router'
+import { Navigate } from '~/router'
 import { getConnectionInfo } from '~/server/remote/requestInfo'
 
 const providers = [
@@ -76,41 +76,7 @@ export default function Home() {
           </section>
         )}
       >
-        <section class="mx-auto px-4 py-12 text-center container flex flex-col gap-8 max-w-2xl items-center">
-          <div class="flex flex-col gap-4 items-center">
-            <span class="i-ph-sun-horizon-duotone text-primary size-16 md:size-20" />
-            <div class="space-y-2">
-              <h1 class="text-4xl tracking-tight font-semibold md:text-5xl">Oneday</h1>
-              <p class="text-sm text-muted-foreground mx-auto max-w-md md:text-base">
-                {connectionText()}
-              </p>
-            </div>
-          </div>
-          <div class="mt-2 gap-4 grid max-w-md w-full md:grid-cols-2">
-            <Button
-              as={A}
-              variant="outline"
-              class="group px-6 py-5 text-left rounded-2xl flex gap-3 h-auto items-center"
-              href="/c"
-            >
-              <span class="text-primary rounded-full bg-primary/10 inline-flex size-9 items-center justify-center">
-                <span class="i-ph-chat-circle-dots-duotone size-5" />
-              </span>
-              <div class="text-lg font-semibold">Chat</div>
-            </Button>
-            <Button
-              as={A}
-              href="/q/today"
-              variant="outline"
-              class="group px-6 py-5 text-left rounded-2xl flex gap-3 h-auto items-center"
-            >
-              <span class="text-primary rounded-full bg-primary/10 inline-flex size-9 items-center justify-center">
-                <span class="i-ph-sword-duotone size-5" />
-              </span>
-              <div class="text-lg font-semibold">Quest (WIP)</div>
-            </Button>
-          </div>
-        </section>
+        <Navigate href="/dashboard" />
       </Show>
     </main>
   )
