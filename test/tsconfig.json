@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "jsxImportSource": "solid-js",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["../src/*"]
     },
-    "types": ["vinxi/types/client", "node", "@cloudflare/workers-types"],
+    "types": ["@types/bun"],
     "allowJs": true,
     "strict": true,
     "noEmit": true,
@@ -16,5 +16,5 @@
     "esModuleInterop": true,
     "isolatedModules": true
   },
-  "exclude": ["test/**/*"]
+  "include": ["./**/*.ts", "./**/*.tsx"]
 }

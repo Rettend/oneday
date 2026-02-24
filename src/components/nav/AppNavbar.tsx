@@ -1,32 +1,9 @@
 import type { Component, JSX, ParentComponent } from 'solid-js'
-import type { Path } from '~/router'
-import { useLocation } from '@solidjs/router'
-import { createMemo, For, Match, Switch } from 'solid-js'
-import LevelPill from '~/components/todo/LevelPill'
+import { useLocation, useNavigate } from '@solidjs/router'
+import { createMemo, For } from 'solid-js'
 import { A } from '~/router'
 import { useUIStore } from '~/stores/ui'
-
-interface NavItem {
-  href: Path
-  icon: string
-  label: string
-}
-
-const QUEST_NAV_ITEMS = [
-  { href: '/q/today', icon: 'i-ph-calendar-check-duotone', label: 'Today' },
-  { href: '/q/questboard', icon: 'i-ph-sword-duotone', label: 'Questboard' },
-  { href: '/q/achievements/progress', icon: 'i-ph-trophy-duotone', label: 'Achievements' },
-  { href: '/q/activity', icon: 'i-ph:presentation-chart-duotone', label: 'Activity' },
-  { href: '/q/settings', icon: 'i-ph-gear-six-duotone', label: 'Settings' },
-  { href: '/q/rules', icon: 'i-ph-funnel-duotone', label: 'Rules' },
-  { href: '/q/deadlines', icon: 'i-ph-calendar-duotone', label: 'Deadlines' },
-] as const satisfies NavItem[]
-
-function isPathActive(currentPathname: string, href: Path): boolean {
-  if (href === '/')
-    return currentPathname === '/'
-  return currentPathname === href || currentPathname.startsWith(`${href}/`)
-}
+import { uuidV7Base58 } from '~/utils/ids'
 
 const SidebarShell: ParentComponent<{ footer?: JSX.Element }> = (props) => {
   const [ui, uiActions] = useUIStore()
@@ -81,111 +58,42 @@ const SidebarShell: ParentComponent<{ footer?: JSX.Element }> = (props) => {
   )
 }
 
-const QuestSidebar: Component = () => {
+const navItems = [
+  { href: '/dashboard', icon: 'i-ph-chart-bar-duotone', label: 'Dashboard' },
+  { href: '/activity', icon: 'i-ph-chart-line-up-duotone', label: 'Activity' },
+  { href: '/settings', icon: 'i-ph-gear-six-duotone', label: 'Settings' },
+] as const
+
+const projects = [
+  { name: 'Oneday OS', icon: 'i-ph-sparkle-duotone' },
+  { name: 'Client work', icon: 'i-ph-briefcase-duotone' },
+  { name: 'Life admin', icon: 'i-ph-house-duotone' },
+] as const
+
+const history = [
+  { id: 'daily', title: 'Daily contract planning' },
+  { id: 'deep-focus-protocol', title: 'Deep focus protocol' },
+  { id: 'weekly-review', title: 'Weekly review' },
+] as const
+
+const AppSidebar: Component = () => {
+  const [ui] = useUIStore()
   const location = useLocation()
-  const [ui] = useUIStore()
+  const navigate = useNavigate()
 
-  return (
-    <SidebarShell
-      footer={(
-        <LevelPill
-          level={3}
-          currentXp={60}
-          nextLevelXp={120}
-          href="/q/achievements/progress"
-          forceIconMode={ui.local.sidebarCollapsedLg}
-        />
-      )}
-    >
-      <nav class="nav-scroll px-1.5 pt-2 [scroll-behavior:smooth] inset-0 absolute overflow-y-auto space-y-1">
-        <For each={QUEST_NAV_ITEMS}>
-          {(item) => {
-            const active = () => isPathActive(location.pathname, item.href)
-            return (
-              <A
-                href={item.href}
-                title={item.label}
-                class={`group rounded-full inline-flex w-full items-center justify-center ${ui.local.sidebarCollapsedLg ? 'lg:justify-center' : 'lg:justify-start'}`}
-                onMouseEnter={(e) => {
-                  if (item.icon === 'i-ph-sword-duotone')
-                    e.currentTarget.classList.add('was-hovered')
-                }}
-              >
-                <div
-                  class={`rounded-full inline-flex gap-4 size-12 transition-colors duration-200 items-center ${ui.local.sidebarCollapsedLg ? 'lg:pl-0 lg:pr-0' : 'lg:pl-4 lg:pr-6'} lg:h-12 ${ui.local.sidebarCollapsedLg ? 'lg:w-12' : 'lg:w-auto'}  ${
-                    active()
-                      ? 'bg-primary/8 text-foreground ring-1 ring-primary/40 shadow-[0_0_16px_oklch(var(--primary)_/_0.35)] group-hover:bg-primary/12'
-                      : 'text-primary group-hover:bg-primary/8 group-hover:text-foreground'
-                  }`}
-                >
-                  {item.icon === 'i-ph-sword-duotone'
-                    ? (
-                        <span class={`sword-wrap mx-a shrink-0 ${active() ? 'placed' : ''}`}>
-                          <span class={`sword-icon ${item.icon} size-7 transition-colors ${active() ? 'text-primary' : 'opacity-90 group-hover:opacity-100'}`} />
-                        </span>
-                      )
-                    : (
-                        <span class={`mx-a shrink-0 ${item.icon} size-7 transition-colors ${active() ? 'text-primary' : 'opacity-90 group-hover:opacity-100'}`} />
-                      )}
-                  <span class={`text-lg font-semibold hidden truncate ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}  ${active() ? 'text-primary' : ''}`}>{item.label}</span>
-                </div>
-              </A>
-            )
-          }}
-        </For>
-      </nav>
-      <style>
-        {`
-        .nav-scroll { scrollbar-width: none; }
-        .nav-scroll::-webkit-scrollbar { display: none; }
-        .sword-wrap { display: inline-flex; will-change: transform; transform: translateY(0); animation: none; }
-        .sword-icon { will-change: transform; transform-origin: 50% 50%; transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1); }
-        .group:hover .sword-icon, .sword-wrap.placed .sword-icon { transform: rotate(135deg); }
-        .group:hover .sword-wrap, .sword-wrap.placed { animation: sword-drop 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .group.was-hovered:not(:hover) .sword-wrap:not(.placed) { animation: sword-pull-out 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-        .group.was-hovered:not(:hover) .sword-icon:not(.placed) { transition-delay: 600ms; }
-        @keyframes sword-drop {
-          0% { transform: translateY(-4px); }
-          86% { transform: translateY(-4px); }
-          100% { transform: translateY(0); }
-        }
-        @keyframes sword-pull-out {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-4px); }
-        }
-        `}
-      </style>
-    </SidebarShell>
-  )
-}
-
-const ChatSidebar: Component = () => {
-  const [ui] = useUIStore()
-
-  const projects = [
-    { name: 'Oneday OS', icon: 'i-ph-sparkle-duotone' },
-    { name: 'Client work', icon: 'i-ph-briefcase-duotone' },
-    { name: 'Life admin', icon: 'i-ph-house-duotone' },
-  ]
-
-  const history = [
-    { title: 'Daily standup planning' },
-    { title: 'Deep focus protocol' },
-    { title: 'Weekly review script' },
-    { title: 'Quest design brainstorm' },
-  ]
+  const isActive = (href: string) => location.pathname === href
 
   return (
     <SidebarShell
       footer={(
         <A
-          href="/c/settings"
+          href="/settings"
           class={`text-13px text-primary font-medium mx-a border border-border/70 rounded-full bg-background/80 inline-flex gap-2 h-10 w-10 items-center justify-center hover:text-foreground hover:bg-primary/5 ${
             ui.local.sidebarCollapsedLg ? '' : 'lg:w-full lg:mx-0'
           }`}
         >
           <span class="i-ph-gear-six-duotone size-5" />
-          <span class={`hidden ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>Chat settings</span>
+          <span class={`hidden ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>Settings</span>
         </A>
       )}
     >
@@ -193,9 +101,10 @@ const ChatSidebar: Component = () => {
         <section class="flex flex-col gap-3">
           <button
             type="button"
-            class={`lg:h-12shadow-[0_0_22px_oklch(var(--primary)_/_0.45)] text-sm text-primary-foreground font-medium mx-a rounded-full bg-primary/90 inline-flex gap-2 h-10 w-10 transition-colors items-center justify-center hover:bg-primary ${
+            class={`text-sm text-primary-foreground font-medium mx-a rounded-full bg-primary/90 inline-flex gap-2 h-10 w-10 shadow-[0_0_22px_oklch(var(--primary)_/_0.45)] transition-colors items-center justify-center hover:bg-primary ${
               ui.local.sidebarCollapsedLg ? '' : 'lg:h-10 lg:w-full lg:mx-0'
             }`}
+            onClick={() => navigate(`/chat/${uuidV7Base58()}`)}
           >
             <span class="i-ph-chat-circle-dots-duotone size-5" />
             <span class={`hidden ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>New chat</span>
@@ -226,6 +135,26 @@ const ChatSidebar: Component = () => {
               />
             </div>
           </div>
+        </section>
+
+        <section class="space-y-1">
+          <For each={navItems}>
+            {item => (
+              <A
+                href={item.href}
+                class={`text-sm font-medium mx-a rounded-full flex gap-2 h-10 w-10 items-center justify-center ${
+                  ui.local.sidebarCollapsedLg ? '' : 'lg:h-9 lg:w-full lg:px-3 lg:justify-start lg:mx-0'
+                }`}
+                classList={{
+                  'text-foreground bg-primary/10': isActive(item.href),
+                  'text-primary hover:text-foreground hover:bg-primary/6': !isActive(item.href),
+                }}
+              >
+                <span class={`${item.icon} size-5`} />
+                <span class={`hidden truncate ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>{item.label}</span>
+              </A>
+            )}
+          </For>
         </section>
 
         <section class="space-y-2">
@@ -266,12 +195,12 @@ const ChatSidebar: Component = () => {
           <div class={`ml-3 pl-3 border-l border-border/70 hidden space-y-1 ${ui.local.sidebarCollapsedLg ? '' : 'lg:block'}`}>
             <For each={history}>
               {item => (
-                <button
-                  type="button"
+                <A
+                  href={`/chat/${item.id}`}
                   class="text-13px text-primary px-3 py-2 text-left text-start rounded-full w-full hover:text-foreground hover:bg-primary/6"
                 >
                   <span class="truncate">{item.title}</span>
-                </button>
+                </A>
               )}
             </For>
           </div>
@@ -288,22 +217,5 @@ const ChatSidebar: Component = () => {
 }
 
 export const AppNavbar: Component = () => {
-  const location = useLocation()
-  const isChat = createMemo(() => location.pathname.startsWith('/c'))
-  const isQuest = createMemo(() => location.pathname.startsWith('/q'))
-
-  return (
-    <Switch>
-      <Match
-        when={isChat()}
-      >
-        <ChatSidebar />
-      </Match>
-      <Match
-        when={isQuest()}
-      >
-        <QuestSidebar />
-      </Match>
-    </Switch>
-  )
+  return <AppSidebar />
 }

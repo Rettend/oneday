@@ -47,7 +47,9 @@
     "lint": "bun --bun eslint . --fix",
     "update": "taze latest -wr",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test": "bun test --conditions=browser",
+    "test:watch": "bun test --watch --conditions=browser"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "catalog:prod",
@@ -84,9 +86,13 @@
     "@cloudflare/vite-plugin": "^1.21.2",
     "@cloudflare/workers-types": "catalog:dev",
     "@fontsource-variable/josefin-sans": "^5.2.8",
+    "@happy-dom/global-registrator": "^20.7.0",
     "@iconify-json/ph": "^1.2.2",
     "@iconify/utils": "catalog:dev",
     "@rttnd/unocss-preset-shadcn": "^1.0.1",
+    "@solidjs/testing-library": "^0.8.10",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@types/bun": "^1.3.9",
     "@types/node": "catalog:dev",
     "@typescript/native-preview": "catalog:dev",
     "@unocss/eslint-plugin": "66.5.6",

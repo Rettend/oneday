@@ -1,164 +1,221 @@
 # TODO
 
-## Bugs
+## Phase 0 — Cleanup (remove gamification)
 
-- [ ] achievements/discover: the view transition places the floating llm input behind the sidebar
-- [ ] viewtransitions mess up quest nav animation on click, maybe remove
+- [x] Delete achievement components (`AchievementCard.tsx`, `AchievementsSummaryRow.tsx`)
+- [x] Delete gamification components (`LevelPill.tsx`, `DeadlineChip.tsx`)
+- [x] Delete all `/q` routes (`today.tsx`, `questboard.tsx`, `activity.tsx`, `deadlines.tsx`, `rules.tsx`, `settings.tsx`, `achievements/*`)
+- [x] Delete `/q/index.tsx` layout
+- [x] Delete `QuestSidebar` from `AppNavbar.tsx`
+- [ ] Remove `LevelPill` import and usage from the navbar
+- [ ] Remove the dual-sidebar `Switch` logic in `AppNavbar` (no more `/c` vs `/q` detection)
+- [x] Delete the `components/today/` folder
+- [x] Delete the `components/achievements/` folder
+- [x] Delete the `components/todo/` folder
+- [ ] Clean up any orphaned imports across the codebase after deletions
 
-## Notes
+## Phase 0.5 — Testing infrastructure
 
-- [ ] collapse sidebar to icon only when clicking on it, just like grok.com
-- [ ] generating achievements: generate rarities first, then llm fills in the rest of the achievement
-  - rarer ones have lower chance, and depends on previously accepted achievements, so user can't just reroll until they get all spessars
+### Component tests (bun:test + happy-dom + @solidjs/testing-library)
 
-## Navigation and pages
+- [x] Install dev dependencies: `@solidjs/testing-library`, `@happy-dom/global-registrator`, `@testing-library/jest-dom`, `@types/bun`
+- [x] Create `bunfig.toml` with test preload config and JSX rules
+- [x] Create `test/setup.ts` with happy-dom registration and global mocks (ResizeObserver, matchMedia)
+- [x] Verify SolidJS JSX compilation works in bun:test (uses `react-jsx` via test tsconfig)
+- [x] Write a test for an existing component (e.g. `Button`) to validate the setup
+- [x] Add `test` and `test:watch` scripts to `package.json` (`--conditions=browser`)
 
-- Navbar
-  - Desktop: left side vertical, icons + text labels
-  - Medium: left side slim, icons only
-  - Mobile: bottom tab bar, icons only; up to 5 primary icons + a "More" icon that opens an upward dropdown with the rest
-  - Active state: highlight + indicator; tooltips on hover
-  - Overflow: prioritize Today, Questboard, Achievements, Activity, Settings; overflow goes under "More"
+### E2E tests (Playwright)
 
-- Today
-  - Header: "Generate quests" button, date, XP/level pill
-  - Left: Today’s Dailies (checklist), high/low-level Todos (outline: Today, Week, Month, Backlog)
-  - Right: Live Activity timeline (categorized sessions), quick stats (time by project/category), leisure budget meters
-  - Footer: Upcoming deadlines chips (Hardline/Softline)
-- Questboard
-  - Tabs: Day • Week • Month • Season
-  - Questlines per goal (cards) with: Title, Tier (I–V), Rarity badge, XP, deadline chips, acceptance criteria, evidence progress bar, Complete button
-  - Suggested (LLM) quests section with Accept/Reject
-  - Filters: goal, project, horizon, difficulty, status
-- Achievements
-  - Badges grid with icons (Iconify: ph set), rarity color, tier progress (I–V, optional per rarity)
-  - Sections: Recent, In progress (multi-tier/across-rarity), Locked, Completed
-  - Variants: show variant badges/chips and surfaced variant-specific names when unlocked
-  - Naming: non-cringe, unexpected, a bit witty/cool; avoid fantasy unless user theme warrants it
-  - "Generate custom achievements" (LLM), Accept/Reject
-  - Detail drawer: base description, how to earn, progress, XP reward, variant rules + which ones are unlocked
-- Todo Lists (High ↔ Low)
-  - Split view: Goals/epics (left), subtasks (right)
-  - Bulk edit, promote to Quest, add Hardline/Softline, tags
-  - Outline mode (indent/outdent), drag to reorder
-- Activity Log
-  - Timeline of sessions (process + window title + URL if browser)
-  - Category/project chips, search/filter, merge/split sessions
-  - Lots of stats and charts
-  - "Create rule from selection" and "Auto-suggest rules" (LLM) with preview
-- Rules & Categories
-  - Regex rules list with test console against sample activity
-  - Category manager (colors, emoji/icon)
-  - LLM-suggested rules queue (Approve/Discard)
-- Deadlines
-  - Calendar/roadmap view (by Week/Month)
-  - Hardline = red chip; Softline = blue chip
-  - Drag to move Softline; Hardline fixed (confirm dialog to change)
-  - Quest/Todo deadline overlays
-- Settings
-  - Tracking: run-in-background toggle, startup, idle threshold
-  - Browser extension token + status
-  - Notifications + desktop widget toggle
-  - XP/Levels/Achievements tuning (show formulas, adjustable)
-  - Data export/import, theme light/dark
-  - Global LLM Provider/Model: header button opens a modal-like dropdown with two selects (Provider, then Model); persists selection; applied app-wide
+- [ ] Install Playwright: `bun add -d @playwright/test`
+- [ ] Create `playwright.config.ts` with webServer config pointing to the dev server
+- [ ] Write a smoke test (page loads, login page renders)
+- [ ] E2E tests for flows that can't be component-tested (auth, WebSocket chat, navigation)
 
-## System highlights
+### Testing approach
 
-- Background tracking: logs active window titles (VS Code shows project/file), idle detection
-- Browser extension (tiny): sends active tab URL/title to localhost
-- Categorization:
-  - Rule-first (regex) with quick-create from Activity Log
-  - LLM proposes new rules for uncategorized activity; review before apply
-- Deadlines: Hardline (non-negotiable) and Softline (preferred) surfaced on Today, Questboard, Deadlines
-- Notifications + widget:
-  - Desktop toasts: near deadline, over leisure budget, quest completion
-  - Optional desktop widget: Today’s quests + live progress + budgets
+- [ ] Component tests for all UI components and pages (fast, run in bun:test)
+- [ ] E2E tests only for what we can't test with bun:test and absolutely requires a real browser (auth flows, streaming, navigation)
+- [ ] Build features with test coverage — minimize manual clicking
 
-## Game systems
+## Phase 1 — Restructure navigation and routes
 
-- Levels: linear or slightly increasing (default: XP_to_next = 100 + 20 × level)
-- XP sources: completing quests, streaks, achievements
-- Achievements system
-  - Rarities: progression backbone; achievements can start at any rarity.
-    - Iron (gray), Bronze (brown), Silver (silver), Gold (gold), Platinum (darkish cyan), Emerald (green), Diamond (blue–dark purple), Rhodal (darker red‑pink), Nummite (black with blue flecks), Spessar (reddish dark orange)
-  - Tiers: each rarity may optionally have tiers I, II, III, IV, or V; all valid progressions for an achievement:
-    - Iron I → Iron II → Iron III → Iron IV → Iron V → Bronze I → …
-    - Iron I → Iron II → Iron III → Bronze I → …
-    - Iron I → Bronze I → Silver I → …
-    - After Spessar V, it switches to numbers: Spessar 6 → Spessar 7 → …
-  - Variants: optional, orthogonal difficulty layers that add constraints (e.g., "within timeframe", "without doing X"). Variants unlock alternate achievement names and add an XP boost.
-    - Example (basic Streak achievement):
-      - did the days' streaks mostly after 10pm → "I woke up… tomorrow?"
-      - did the days' streaks strictly before 10am → "gm. I woke up"
-      - missed a day, then came back next day → "I woke up, yay"
-  - Naming guidelines: non‑cringe, very unexpected, slightly witty/funny (online humor), or very cool with profound words; avoid fantasy unless user theme requests it. the Streak achievement example: "I woke up".
-  - XP model (tunable defaults):
-    - Base: base_xp = 50
-    - Tier multiplier: tier_idx ∈ {1..5}; tier_mult = tier_idx² (quadratic)
-    - Rarity multiplier: rarity_mult increases monotonically with rarity
-    - Variant boosts: multiplicative or additive boosts per unlocked variant (e.g., +10–50% each)
-    - Formula: XP = base_xp × rarity_mult × tier_mult × (1 + Σ variant_boosts)
-- Icons: Iconify (ph- set, duotone), for:
-  - Quests, Achievements, and lots in the UI
+- [ ] Flatten route structure: move `/c/[id].tsx` → `/chat/[id].tsx`, `/c/settings.tsx` → `/settings.tsx`
+- [ ] Remove the old `/c` prefix route group
+- [ ] Create new routes: `/dashboard`, `/activity`, `/settings`, `/chat/[id]`
+- [ ] Make `/dashboard` the default authenticated landing page (redirect from `/` after login)
+- [ ] Unify the sidebar into one component (based on current `ChatSidebar` design)
+  - Top section: nav items (Dashboard, Activity, Settings)
+  - Middle section: Projects (chat project folders)
+  - Bottom section: History (recent conversations)
+  - Footer: settings gear
+- [ ] Remove the `SidebarShell` dual-mode and `AppNavbar` switch — just one sidebar always
+- [ ] Update `app.tsx` to use the unified sidebar for all authenticated routes
+- [ ] Update the home page (`/`) to show login when unauthenticated, redirect to `/dashboard` when authenticated
+- [ ] Add floating `LLMInput` (with `position="overlay"`) to the app shell so it appears on every page
+- [ ] Wire the floating input to open/create a "daily" conversation or the most recent chat
+- [ ] Update `router.ts` and typed routes after route changes
 
-## Milestones
+## Phase 2 — Tauri desktop shell
 
-- M0 — Foundations
-  - [ ] App shell + nav (Today, Questboard, Achievements, Activity, Rules, Deadlines, Settings)
-  - [ ] Run-in-background + autostart, idle detection
-  - [ ] Browser extension handshake + token
-- M1 — Activity + Categorization
-  - [ ] Live Activity timeline (process/title/url)
-  - [ ] Manual category assignment; bulk edit
-  - [ ] Regex rules UI with test preview
-  - [ ] LLM: suggest rules for uncategorized items (approve/deny)
-- M2 — Todos + Deadlines
-  - [ ] High/low-level Todo Lists (outline + split view)
-  - [ ] Hardline/Softline date chips + calendar view
-  - [ ] Promote todo → quest
-- M3 — Quests (core)
-  - [ ] Questboard (Day/Week/Month/Season tabs)
-  - [ ] Quest card layout: title, tier, rarity, XP, deadlines, acceptance criteria, progress, Complete
-  - [ ] LLM: generate custom quests from goals + history (Accept/Reject)
-- M4 — XP & Levels
-  - [ ] Level pill in header; XP gains on completion
-  - [ ] Level-up animation; history of XP events
-  - [ ] Settings to tweak level curve (linear/slightly increasing)
-- M5 — Achievements (awesome page)
-  - [ ] Badges grid with rarity colors + tier stacks
-  - [ ] Achievement details drawer with icon, description, progress, quadratic XP reward
-  - [ ] LLM: propose custom achievements from patterns (Accept/Reject)
-- M6 — Notifications + Widget
-  - [ ] Desktop notifications: deadlines, caps, quest completion
-  - [ ] Minimal desktop widget: Today’s quests, progress, budgets
-- M7 — Polish and Launch
-  - [ ] Filters/search everywhere
-  - [ ] Bulk actions (multi-select in Todos/Quests)
-  - [ ] Empty states, animations, confetti for wins
-  - [ ] Export screenshots (Today, Questboard, Achievements)
+### Initial setup
 
-## Acceptance criteria per page (UI-level)
+- [ ] Initialize Tauri v2 in the project (`src-tauri/` directory)
+- [ ] Configure Tauri to use SolidStart's dev server URL during development
+- [ ] Configure Tauri to use the built SPA output for production builds
+- [ ] Set up the `tauri dev` and `tauri build` npm scripts
+- [ ] Add the required Tauri plugins to `src-tauri/Cargo.toml`:
+  - `tauri-plugin-notification` for desktop notifications
+  - `x-win` for active window polling
+- [ ] Configure Tauri capabilities/permissions for notifications and system access
 
-- Today: can add/check todos, accept LLM quests, see timeline + budgets, see upcoming deadlines
-- Questboard: filterable list, horizon tabs, clear criteria + progress, complete quests, see XP
-- Achievements: view by rarity/tier (including cross‑rarity progress), see locked/progress/completed, see and unlock variants with their alternate names, claim rewards with XP reflecting rarity/tier/variant boosts, LLM suggestions
-- Activity Log: edit categories, create rules, trigger LLM suggestions with preview
-- Rules: test regexes, reorder priorities, approve LLM-generated rules
-- Deadlines: calendar with hard/soft chips, drag softlines, see quest/todo overlays
-- Settings: toggle tracking, connect extension, tune XP curves, export
+### System tray
 
-## LLM touchpoints (UI)
+- [ ] Create a system tray icon with the Oneday sun icon
+- [ ] Add tray menu items: Show/Hide window, Status (shows contract status), Quit
+- [ ] Configure the app to minimize to tray on window close instead of quitting
+- [ ] Configure autostart on system boot (optional, user-configurable)
 
-- "Generate quests" on Today/Questboard
-- "Generate custom achievements" on Achievements
-- "Suggest rules" on Activity Log/Rules (with diff preview)
-- Small inline justifications ("why this quest/achievement/rule?") for trust
+### Window polling service
 
-## Backlog (later)
+- [ ] Create a Rust background task that polls `x_win::get_active_window()` every 5 seconds
+- [ ] Collect: timestamp, process name, window title
+- [ ] Also call `x_win::get_browser_url()` when the active app is a browser
+- [ ] Buffer entries in-memory (Vec), sync to remote DB every 60 seconds (not every poll — reduces writes from ~17k to ~1,440/day)
+- [ ] Handle offline gracefully: keep buffering, retry on reconnect
+- [ ] Expose a Tauri command so the frontend can query the current active window (for live activity display)
+- [ ] Add idle detection: if the same window/title persists for X minutes with no input, mark as idle
 
-- Seasonal report page (monthly recap)
-- Shareable images of Achievements/Questboard
-- Quick Add global shortcut
-- Per-project views and color themes
-- What kind of widget can we create?
+## Phase 3 — Database schema for activity and contracts
+
+### Activity tables
+
+- [ ] Add `activity_logs` table: `id`, `userId`, `timestamp`, `appName`, `windowTitle`, `browserUrl` (nullable), `category` (nullable), `isIdle` (boolean)
+- [ ] Add `category_rules` table: `id`, `userId`, `pattern` (regex or contains), `matchField` (app_name | window_title | browser_url), `category`, `priority` (integer), `createdAt`
+- [ ] Add indexes on `activity_logs` for `userId + timestamp` range queries
+
+### Contract tables
+
+- [ ] Add `contracts` table: `id`, `userId`, `date` (unique per user per day), `status` (draft | active | complete), `createdAt`, `updatedAt`
+- [ ] Add `contract_blocks` table: `id`, `contractId`, `label` (e.g. "Math study"), `category`, `targetMinutes`, `completedMinutes`, `order`, `createdAt`
+- [ ] Add `goals` table: `id`, `userId`, `name` (e.g. "Math exam"), `type` (countdown | counter | tracker), `metadata` (JSON — target date, current/total counts, etc.), `createdAt`, `updatedAt`
+
+### API endpoints
+
+- [ ] POST `/api/activity` — receives batched activity entries from Tauri, writes to `activity_logs`
+- [ ] GET `/api/activity/today` — returns today's activity summary (grouped by category, total time per category)
+- [ ] GET `/api/activity/week` — returns this week's daily summaries
+- [ ] GET `/api/contract/today` — returns today's contract with blocks
+- [ ] POST `/api/contract` — creates or updates today's contract (used by LLM tools)
+- [ ] PATCH `/api/contract/block/:id` — updates a block's `completedMinutes`
+- [ ] GET `/api/goals` — returns all active goals for the user
+- [ ] PATCH `/api/goals/:id` — updates a goal's metadata (used by LLM tools)
+- [ ] GET `/api/rules` — returns categorization rules
+- [ ] POST `/api/rules` — creates a new categorization rule
+
+## Phase 4 — Activity page
+
+- [ ] Build the Activity page UI at `/activity`
+- [ ] Timeline view: chronological list of activity sessions, grouped by contiguous app usage
+- [ ] Show app name, window title, browser URL (if any), duration, category chip
+- [ ] Allow manual category assignment (click category chip → dropdown)
+- [ ] Quick stats section: time by category today (bar chart or simple bars)
+- [ ] Date picker to view past days
+- [ ] "Create rule from selection" — select an activity entry, create a regex rule from its title/app
+
+## Phase 5 — Dashboard page
+
+- [ ] Build the Dashboard page UI at `/dashboard`
+- [ ] **Status light**: large, prominent red/green indicator at the top
+  - Red: shows remaining time per block ("1.5h math left, 0.5h freelance left")
+  - Green: celebration state with a satisfying visual
+- [ ] **Today's contract card**: checklist of blocks with progress bars
+  - Each block shows: label, target time, completed time (auto-calculated from activity logs matching the block's category)
+  - Checkbox or visual completion state
+- [ ] **Goal trackers card**: show each goal from the `goals` table
+  - Countdown type: days remaining, progress bar
+  - Counter type: current / total (e.g. definitions 31/160)
+  - Updated by the LLM via chat tools
+- [ ] **This week card**: 7-day row showing each day's status
+  - 🟢/🔴 dot, label (study day / free day), and hours summary
+- [ ] **Live activity indicator**: small card showing current window/app from Tauri
+- [ ] Responsive layout: single column on mobile, two columns on desktop
+
+## Phase 6 — Chat improvements
+
+### LLM tools (function calling)
+
+- [ ] Define tools the LLM can call during conversation:
+  - `create_contract` — create today's contract with blocks
+  - `update_contract` — modify blocks on the current contract
+  - `complete_block` — mark a contract block as done
+  - `update_goal` — update a goal's counters (e.g. "covered definitions 31-45" → updates count)
+  - `create_goal` — set up a new goal tracker
+  - `get_activity_summary` — fetch today's or a date range's activity breakdown
+  - `get_contract_status` — fetch the current contract and completion state
+  - `create_rule` — add a categorization rule
+- [ ] Register tools with the ChatAgent's `streamText` call
+- [ ] Render tool results in the chat UI (show contract cards, activity summaries inline)
+
+### System context injection
+
+- [ ] Before each chat message, inject system context:
+  - Today's contract status (blocks + completion)
+  - Today's activity summary (hours per category)
+  - Active goals and their current state
+  - Day of week, any upcoming deadlines
+- [ ] Make system context refresh periodically (not just on page load)
+
+### Model selection
+
+- [ ] Wire the model picker button in `LLMInput` to a real dropdown/modal
+- [ ] Fetch available providers and models from `@rttnd/llm` registry (`llm.rettend.me`)
+- [ ] Store user's API keys per provider (already have BYOK encryption + `api_keys` table)
+- [ ] Pass selected provider + model to the ChatAgent (replace hardcoded Llama 2 7B)
+- [ ] ChatAgent resolves the user's API key for the selected provider from Turso
+- [ ] Allow per-conversation model selection (stored in `conversations.modelId` / `modelProviderId`)
+- [ ] Store default model preference in user settings
+- [ ] Show model name in chat header/input area
+
+### Conversation management
+
+- [ ] Implement "New chat" button in sidebar (create conversation in Turso, navigate to `/chat/[id]`)
+- [ ] Implement conversation list in sidebar History section (fetch from Turso)
+- [ ] Implement conversation deletion
+- [ ] Auto-generate conversation titles (LLM summarize after first few messages)
+- [ ] Implement the "daily contract" special conversation (auto-created each morning, pinned)
+
+## Phase 7 — Nudges (desktop notifications)
+
+- [ ] Implement nudge logic in Tauri's Rust backend:
+  - While a contract block is active (current time within a scheduled block)
+  - If the activity logger detects 10+ minutes in a non-matching category
+  - Send one desktop notification via `tauri-plugin-notification`
+  - Don't repeat the nudge for the same off-track period (one nudge per drift)
+- [ ] Notification content: block name, time done, time remaining, current app, how long off-track
+- [ ] Add a user setting to enable/disable nudges
+- [ ] Add a user setting for the drift threshold (default: 10 minutes)
+
+## Phase 8 — Settings page
+
+- [ ] Build Settings page at `/settings`
+- [ ] **BYOK section**: API key inputs per provider (already exists in `/c/settings`, move it here)
+- [ ] **Model preferences**: default model picker
+- [ ] **Tracking section**: enable/disable background tracking toggle
+- [ ] **Notifications section**: enable/disable nudges, drift threshold slider
+- [ ] **Categorization rules section**: list rules, add/edit/delete, test against sample activity
+- [ ] **Goals section**: list active goals, create new, edit, archive
+- [ ] **Account section**: connected OAuth providers, sign out
+- [ ] **Data section**: future — export activity data
+
+## Phase 9 — Polish
+
+- [ ] Transition animations between pages
+- [ ] Status light celebration animation when contract completes (confetti? glow? satisfying pulse?)
+- [ ] Empty states for all pages (no activity yet, no contract today, no goals)
+- [ ] Loading states and skeletons
+- [ ] Error handling and retry UI for API calls
+- [ ] Keyboard shortcuts (Cmd/Ctrl+K for chat, etc.)
+- [ ] Dark/light theme toggle (currently dark only?)
+- [ ] Mobile-responsive layouts (even though desktop-first, the web version should work on phone browsers)
+- [ ] Weekly review: auto-generate on Sunday, show as a special chat message or dashboard card
