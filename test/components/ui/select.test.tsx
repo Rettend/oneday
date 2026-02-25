@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import { afterEach, describe, expect, it } from 'bun:test'
+import { cleanup, fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import {
   Select,
   SelectContent,
@@ -24,10 +24,10 @@ describe('Select Component', () => {
       <Select
         options={FRUITS}
         placeholder="Select a fruit…"
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={props => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
       >
         <SelectTrigger aria-label="Fruit" data-testid="select-trigger">
-          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+          <SelectValue<string>>{state => state.selectedOption()}</SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>
@@ -43,17 +43,17 @@ describe('Select Component', () => {
       <Select
         options={FRUITS}
         placeholder="Select a fruit…"
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={props => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
       >
         <SelectTrigger aria-label="Fruit" data-testid="select-trigger">
-          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+          <SelectValue<string>>{state => state.selectedOption()}</SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>
     ))
 
     const trigger = screen.getByTestId('select-trigger')
-    
+
     expect(screen.queryByRole('option', { name: 'Apple' })).not.toBeInTheDocument()
 
     fireEvent.click(trigger)
@@ -72,11 +72,11 @@ describe('Select Component', () => {
       <Select
         options={FRUITS}
         placeholder="Select a fruit…"
-        onChange={(val) => selectedValue = val || ''}
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        onChange={val => selectedValue = val || ''}
+        itemComponent={props => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
       >
         <SelectTrigger aria-label="Fruit" data-testid="select-trigger">
-          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+          <SelectValue<string>>{state => state.selectedOption()}</SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>
@@ -100,10 +100,10 @@ describe('Select Component', () => {
         disabled
         options={FRUITS}
         placeholder="Select a fruit…"
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={props => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
       >
         <SelectTrigger aria-label="Fruit" data-testid="select-trigger">
-          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+          <SelectValue<string>>{state => state.selectedOption()}</SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>
@@ -118,11 +118,11 @@ describe('Select Component', () => {
       <Select
         options={FRUITS}
         validationState="invalid"
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={props => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
       >
         <SelectLabel>Fruit Label</SelectLabel>
         <SelectTrigger aria-label="Fruit" data-testid="select-trigger">
-          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+          <SelectValue<string>>{state => state.selectedOption()}</SelectValue>
         </SelectTrigger>
         <SelectContent />
         <SelectDescription>Choose a fruit from the list</SelectDescription>
@@ -133,10 +133,10 @@ describe('Select Component', () => {
     expect(screen.getByText('Fruit Label')).toBeInTheDocument()
     expect(screen.getByText('Choose a fruit from the list')).toBeInTheDocument()
     expect(screen.getByText('Please select a valid fruit')).toBeInTheDocument()
-    
+
     const errorMsg = screen.getByText('Please select a valid fruit')
     expect(errorMsg).toHaveClass('text-destructive')
-    
+
     const desc = screen.getByText('Choose a fruit from the list')
     expect(desc).toHaveClass('text-muted-foreground')
   })
@@ -145,7 +145,7 @@ describe('Select Component', () => {
     render(() => (
       <Select
         options={FRUITS}
-        itemComponent={(props) => (
+        itemComponent={props => (
           <SelectItem item={props.item} class="custom-item">
             {props.item.rawValue}
           </SelectItem>
@@ -153,7 +153,7 @@ describe('Select Component', () => {
       >
         <SelectLabel class="custom-label">Fruit Label</SelectLabel>
         <SelectTrigger class="custom-trigger" aria-label="Fruit" data-testid="select-trigger">
-          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+          <SelectValue<string>>{state => state.selectedOption()}</SelectValue>
         </SelectTrigger>
         <SelectContent class="custom-content" />
         <SelectDescription class="custom-desc">Description</SelectDescription>
@@ -172,7 +172,7 @@ describe('Select Component', () => {
     const listbox = await screen.findByRole('listbox')
     // SelectPrimitive.Content is a parent of listbox.
     expect(document.querySelector('.custom-content')).toBeInTheDocument()
-    
+
     const options = screen.getAllByRole('option')
     expect(options[0]).toHaveClass('custom-item')
   })
@@ -183,11 +183,11 @@ describe('Select Component', () => {
         name="fruit-select"
         value="Apple"
         options={FRUITS}
-        itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
+        itemComponent={props => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
       >
         <SelectHiddenSelect />
         <SelectTrigger aria-label="Fruit" data-testid="select-trigger">
-          <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
+          <SelectValue<string>>{state => state.selectedOption()}</SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>

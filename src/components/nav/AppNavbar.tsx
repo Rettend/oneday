@@ -1,9 +1,9 @@
 import type { Component, JSX, ParentComponent } from 'solid-js'
-import { useLocation, useNavigate } from '@solidjs/router'
-import { createMemo, For } from 'solid-js'
+import { createAsync, revalidate, useAction, useLocation, useNavigate } from '@solidjs/router'
+import { createMemo, createSignal, For, Show } from 'solid-js'
 import { A } from '~/router'
+import { createConversation, deleteConversation, listConversations } from '~/server/remote/chat'
 import { useUIStore } from '~/stores/ui'
-import { uuidV7Base58 } from '~/utils/ids'
 
 const SidebarShell: ParentComponent<{ footer?: JSX.Element }> = (props) => {
   const [ui, uiActions] = useUIStore()
@@ -70,18 +70,51 @@ const projects = [
   { name: 'Life admin', icon: 'i-ph-house-duotone' },
 ] as const
 
-const history = [
-  { id: 'daily', title: 'Daily contract planning' },
-  { id: 'deep-focus-protocol', title: 'Deep focus protocol' },
-  { id: 'weekly-review', title: 'Weekly review' },
-] as const
-
 const AppSidebar: Component = () => {
   const [ui] = useUIStore()
   const location = useLocation()
   const navigate = useNavigate()
+  const createChat = useAction(createConversation)
+  const removeConversation = useAction(deleteConversation)
+
+  const conversations = createAsync(() => listConversations())
+  const [creatingChat, setCreatingChat] = createSignal(false)
+  const [deletingId, setDeletingId] = createSignal<string | null>(null)
 
   const isActive = (href: string) => location.pathname === href
+
+  async function handleNewChat() {
+    if (creatingChat())
+      return
+
+    setCreatingChat(true)
+    try {
+      const conversationId = await createChat({})
+      await revalidate(listConversations.key)
+      navigate(`/chat/${conversationId}`)
+    }
+    finally {
+      setCreatingChat(false)
+    }
+  }
+
+  async function handleDeleteConversation(conversationId: string) {
+    setDeletingId(conversationId)
+    try {
+      await removeConversation({ conversationId })
+      await revalidate(listConversations.key)
+
+      if (location.pathname === `/chat/${conversationId}`)
+        navigate('/dashboard')
+    }
+    finally {
+      setDeletingId(null)
+    }
+  }
+
+  function isDailyConversation(id: string) {
+    return id.startsWith('daily-')
+  }
 
   return (
     <SidebarShell
@@ -104,7 +137,10 @@ const AppSidebar: Component = () => {
             class={`text-sm text-primary-foreground font-medium mx-a rounded-full bg-primary/90 inline-flex gap-2 h-10 w-10 shadow-[0_0_22px_oklch(var(--primary)_/_0.45)] transition-colors items-center justify-center hover:bg-primary ${
               ui.local.sidebarCollapsedLg ? '' : 'lg:h-10 lg:w-full lg:mx-0'
             }`}
-            onClick={() => navigate(`/chat/${uuidV7Base58()}`)}
+            disabled={creatingChat()}
+            onClick={() => {
+              void handleNewChat()
+            }}
           >
             <span class="i-ph-chat-circle-dots-duotone size-5" />
             <span class={`hidden ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>New chat</span>
@@ -193,17 +229,40 @@ const AppSidebar: Component = () => {
             <span class={`hidden truncate ${ui.local.sidebarCollapsedLg ? '' : 'lg:inline'}`}>History</span>
           </button>
           <div class={`ml-3 pl-3 border-l border-border/70 hidden space-y-1 ${ui.local.sidebarCollapsedLg ? '' : 'lg:block'}`}>
-            <For each={history}>
-              {item => (
-                <button
-                  type="button"
-                  class="text-13px text-primary px-3 py-2 text-left text-start rounded-full w-full hover:text-foreground hover:bg-primary/6"
-                  onClick={() => navigate(`/chat/${item.id}`)}
-                >
-                  <span class="truncate">{item.title}</span>
-                </button>
-              )}
-            </For>
+            <Show
+              when={(conversations()?.length ?? 0) > 0}
+              fallback={<p class="text-11px text-muted-foreground px-3 py-2">No chats yet.</p>}
+            >
+              <For each={conversations() ?? []}>
+                {item => (
+                  <div class="group/history px-1 rounded-full flex gap-1 items-center">
+                    <button
+                      type="button"
+                      class="text-13px text-primary px-2.5 py-2 text-left text-start rounded-full flex-1 min-w-0 hover:text-foreground hover:bg-primary/6"
+                      onClick={() => navigate(`/chat/${item.id}`)}
+                    >
+                      <span class="inline-flex gap-1.5 truncate items-center">
+                        <Show when={isDailyConversation(item.id)}>
+                          <span class="i-ph-sun-horizon-duotone text-primary/80 size-4" />
+                        </Show>
+                        <span class="truncate">{item.title ?? item.id}</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      class="text-muted-foreground rounded-full opacity-0 inline-flex size-7 transition-opacity items-center justify-center hover:text-destructive hover:bg-destructive/10 group-hover/history:opacity-100"
+                      disabled={deletingId() === item.id || isDailyConversation(item.id)}
+                      onClick={() => {
+                        void handleDeleteConversation(item.id)
+                      }}
+                      title={isDailyConversation(item.id) ? 'Daily conversation cannot be deleted' : 'Delete conversation'}
+                    >
+                      <span class="i-ph-trash-duotone size-4" />
+                    </button>
+                  </div>
+                )}
+              </For>
+            </Show>
           </div>
         </section>
       </div>

@@ -2,8 +2,6 @@ import type { UIMessage } from 'ai'
 import { createAgent } from '@rttnd/agents/solid'
 import { createAgentChat } from '@rttnd/ai-chat/solid'
 
-export const DEFAULT_MODEL_LABEL = 'Llama 2 7B'
-
 const AGENT_URL = import.meta.env.DEV
   ? 'http://localhost:8787'
   : (import.meta.env.VITE_AGENT_URL ?? '')
@@ -36,7 +34,7 @@ export function createChatSession(options: ChatSessionOptions): ChatSession {
   }))
 
   const { messages, setMessages, sendMessage, clearHistory } = createAgentChat({
-    agent,
+    agent: agent as any,
   })
 
   function onReady(callback: () => void) {

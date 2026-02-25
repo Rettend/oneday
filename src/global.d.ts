@@ -17,6 +17,9 @@ declare global {
     ASSETS: Fetcher
     REGISTRY: KVNamespace
     ChatAgent: DurableObjectNamespace<ChatAgent>
+    TURSO_DB_URL: string
+    TURSO_AUTH_TOKEN: string
+    AUTH_SECRET: string
   }
 }
 

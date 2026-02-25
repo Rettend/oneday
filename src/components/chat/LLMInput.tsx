@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js'
-import { createEffect, createMemo, createSignal, onMount, Show } from 'solid-js'
+import { createAsync, useAction } from '@solidjs/router'
+import { createEffect, createMemo, createSignal, For, onMount, Show } from 'solid-js'
 import { Button } from '~/components/ui/button'
 import {
   Select,
@@ -8,6 +9,13 @@ import {
   SelectTrigger,
 } from '~/components/ui/select'
 import { TextField, TextFieldTextArea } from '~/components/ui/text-field'
+import {
+  getModelPreference,
+  updateModelPreference,
+} from '~/server/remote/chat'
+import {
+  getChatModels,
+} from '~/server/remote/llm'
 
 type LLMInputPosition = 'overlay' | 'inline'
 type LLMInputSettingsMode = 'always' | 'active'
@@ -43,6 +51,10 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
   const [message, setMessage] = createSignal('')
   const [sending, setSending] = createSignal(false)
   const [reasoningEffort, setReasoningEffort] = createSignal<ReasoningEffort>('med')
+
+  const models = createAsync(() => getChatModels())
+  const modelPreference = createAsync(() => getModelPreference())
+  const setModelPreference = useAction(updateModelPreference)
 
   let textareaRef: HTMLTextAreaElement | undefined
 
@@ -128,6 +140,64 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
     }
   }
 
+  function encodeModelValue(providerId: string, modelId: string): string {
+    return JSON.stringify({ providerId, modelId })
+  }
+
+  function decodeModelValue(value: string): { providerId: string, modelId: string } | null {
+    try {
+      const parsed = JSON.parse(value) as {
+        providerId?: string
+        modelId?: string
+      }
+
+      if (!parsed.providerId || !parsed.modelId)
+        return null
+
+      return {
+        providerId: parsed.providerId,
+        modelId: parsed.modelId,
+      }
+    }
+    catch {
+      return null
+    }
+  }
+
+  const selectedModelValue = createMemo(() => {
+    const preference = modelPreference()
+    if (!preference)
+      return ''
+
+    return encodeModelValue(preference.providerId, preference.modelId)
+  })
+
+  const selectedModelLabel = createMemo(() => {
+    const preference = modelPreference()
+    if (!preference)
+      return 'Choose model'
+
+    const match = (models() ?? []).find(model => (
+      model.provider === preference.providerId && model.id === preference.modelId
+    ))
+
+    if (match)
+      return `${match.name} (${match.provider})`
+
+    return `${preference.modelId} (${preference.providerId})`
+  })
+
+  async function handleModelChange(value: string) {
+    const selection = decodeModelValue(value)
+    if (!selection)
+      return
+
+    await setModelPreference({
+      providerId: selection.providerId,
+      modelId: selection.modelId,
+    })
+  }
+
   createEffect(() => {
     if (props.prefill === undefined)
       return
@@ -164,9 +234,27 @@ export const LLMInput: Component<LLMInputProps> = (props) => {
                 class="text-xs px-3 rounded-full h-9"
               >
                 <span class="i-ph-brain-duotone size-4" />
-                <span class="truncate">Model</span>
-                <span class="i-ph-caret-down-duotone size-4" />
+                <span class="max-w-44 truncate">{selectedModelLabel()}</span>
               </Button>
+              <div class="relative">
+                <select
+                  class="text-xs px-3 pr-8 appearance-none border border-border/70 rounded-full bg-background h-9 min-w-58"
+                  value={selectedModelValue()}
+                  onChange={(event) => {
+                    void handleModelChange(event.currentTarget.value)
+                  }}
+                >
+                  <option value="" disabled={Boolean(models()?.length)}>Choose model</option>
+                  <For each={models() ?? []}>
+                    {(model: { provider: string, id: string, name: string }) => (
+                      <option value={encodeModelValue(model.provider, model.id)}>
+                        {model.name} ({model.provider})
+                      </option>
+                    )}
+                  </For>
+                </select>
+                <span class="i-ph-caret-down-duotone text-muted-foreground size-4 pointer-events-none right-2 top-1/2 absolute -translate-y-1/2" />
+              </div>
               <Select
                 options={reasoningOptions}
                 value={reasoningEffort()}

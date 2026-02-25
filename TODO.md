@@ -90,62 +90,62 @@
 
 ### Activity tables
 
-- [ ] Add `activity_logs` table: `id`, `userId`, `timestamp`, `appName`, `windowTitle`, `browserUrl` (nullable), `category` (nullable), `isIdle` (boolean)
-- [ ] Add `category_rules` table: `id`, `userId`, `pattern` (regex or contains), `matchField` (app_name | window_title | browser_url), `category`, `priority` (integer), `createdAt`
-- [ ] Add indexes on `activity_logs` for `userId + timestamp` range queries
+- [x] Add `activity_logs` table: `id`, `userId`, `timestamp`, `appName`, `windowTitle`, `browserUrl` (nullable), `category` (nullable), `isIdle` (boolean)
+- [x] Add `category_rules` table: `id`, `userId`, `pattern` (regex or contains), `matchField` (app_name | window_title | browser_url), `category`, `priority` (integer), `createdAt`
+- [x] Add indexes on `activity_logs` for `userId + timestamp` range queries
 
 ### Contract tables
 
-- [ ] Add `contracts` table: `id`, `userId`, `date` (unique per user per day), `status` (draft | active | complete), `createdAt`, `updatedAt`
-- [ ] Add `contract_blocks` table: `id`, `contractId`, `label` (e.g. "Math study"), `category`, `targetMinutes`, `completedMinutes`, `order`, `createdAt`
-- [ ] Add `goals` table: `id`, `userId`, `name` (e.g. "Math exam"), `type` (countdown | counter | tracker), `metadata` (JSON — target date, current/total counts, etc.), `createdAt`, `updatedAt`
+- [x] Add `contracts` table: `id`, `userId`, `date` (unique per user per day), `status` (draft | active | complete), `createdAt`, `updatedAt`
+- [x] Add `contract_blocks` table: `id`, `contractId`, `label` (e.g. "Math study"), `category`, `targetMinutes`, `completedMinutes`, `order`, `createdAt`
+- [x] Add `goals` table: `id`, `userId`, `name` (e.g. "Math exam"), `type` (countdown | counter | tracker), `metadata` (JSON — target date, current/total counts, etc.), `createdAt`, `updatedAt`
 
-### API endpoints
+### Server functions
 
-- [ ] POST `/api/activity` — receives batched activity entries from Tauri, writes to `activity_logs`
-- [ ] GET `/api/activity/today` — returns today's activity summary (grouped by category, total time per category)
-- [ ] GET `/api/activity/week` — returns this week's daily summaries
-- [ ] GET `/api/contract/today` — returns today's contract with blocks
-- [ ] POST `/api/contract` — creates or updates today's contract (used by LLM tools)
-- [ ] PATCH `/api/contract/block/:id` — updates a block's `completedMinutes`
-- [ ] GET `/api/goals` — returns all active goals for the user
-- [ ] PATCH `/api/goals/:id` — updates a goal's metadata (used by LLM tools)
-- [ ] GET `/api/rules` — returns categorization rules
-- [ ] POST `/api/rules` — creates a new categorization rule
+- [x] `ingestActivity` action — receives batched activity entries from Tauri, writes to `activity_logs`
+- [x] `getActivityDay` query — returns today's activity summary (grouped by category, total time per category)
+- [x] `getActivityWeek` query — returns this week's daily summaries
+- [x] `getTodayContract` query — returns today's contract with blocks
+- [x] `upsertContract` action — creates or updates today's contract (used by LLM tools)
+- [x] `updateContractBlock` action — updates a block's `completedMinutes`
+- [x] `listGoals` query — returns all active goals for the user
+- [x] `updateGoal` action — updates a goal's metadata (used by LLM tools)
+- [x] `listCategoryRules` query — returns categorization rules
+- [x] `createCategoryRule` action — creates a new categorization rule
 
 ## Phase 4 — Activity page
 
-- [ ] Build the Activity page UI at `/activity`
-- [ ] Timeline view: chronological list of activity sessions, grouped by contiguous app usage
-- [ ] Show app name, window title, browser URL (if any), duration, category chip
-- [ ] Allow manual category assignment (click category chip → dropdown)
-- [ ] Quick stats section: time by category today (bar chart or simple bars)
-- [ ] Date picker to view past days
-- [ ] "Create rule from selection" — select an activity entry, create a regex rule from its title/app
+- [x] Build the Activity page UI at `/activity`
+- [x] Timeline view: chronological list of activity sessions, grouped by contiguous app usage
+- [x] Show app name, window title, browser URL (if any), duration, category chip
+- [x] Allow manual category assignment (click category chip → dropdown)
+- [x] Quick stats section: time by category today (bar chart or simple bars)
+- [x] Date picker to view past days
+- [x] "Create rule from selection" — select an activity entry, create a regex rule from its title/app
 
 ## Phase 5 — Dashboard page
 
-- [ ] Build the Dashboard page UI at `/dashboard`
-- [ ] **Status light**: large, prominent red/green indicator at the top
+- [x] Build the Dashboard page UI at `/dashboard`
+- [x] **Status light**: large, prominent red/green indicator at the top
   - Red: shows remaining time per block ("1.5h math left, 0.5h freelance left")
   - Green: celebration state with a satisfying visual
-- [ ] **Today's contract card**: checklist of blocks with progress bars
+- [x] **Today's contract card**: checklist of blocks with progress bars
   - Each block shows: label, target time, completed time (auto-calculated from activity logs matching the block's category)
   - Checkbox or visual completion state
-- [ ] **Goal trackers card**: show each goal from the `goals` table
+- [x] **Goal trackers card**: show each goal from the `goals` table
   - Countdown type: days remaining, progress bar
   - Counter type: current / total (e.g. definitions 31/160)
   - Updated by the LLM via chat tools
-- [ ] **This week card**: 7-day row showing each day's status
+- [x] **This week card**: 7-day row showing each day's status
   - 🟢/🔴 dot, label (study day / free day), and hours summary
-- [ ] **Live activity indicator**: small card showing current window/app from Tauri
-- [ ] Responsive layout: single column on mobile, two columns on desktop
+- [x] **Live activity indicator**: small card showing current window/app from Tauri
+- [x] Responsive layout: single column on mobile, two columns on desktop
 
 ## Phase 6 — Chat improvements
 
 ### LLM tools (function calling)
 
-- [ ] Define tools the LLM can call during conversation:
+- [x] Define tools the LLM can call during conversation:
   - `create_contract` — create today's contract with blocks
   - `update_contract` — modify blocks on the current contract
   - `complete_block` — mark a contract block as done
@@ -154,36 +154,36 @@
   - `get_activity_summary` — fetch today's or a date range's activity breakdown
   - `get_contract_status` — fetch the current contract and completion state
   - `create_rule` — add a categorization rule
-- [ ] Register tools with the ChatAgent's `streamText` call
-- [ ] Render tool results in the chat UI (show contract cards, activity summaries inline)
+- [x] Register tools with the ChatAgent's `streamText` call
+- [x] Render tool results in the chat UI (show contract cards, activity summaries inline)
 
 ### System context injection
 
-- [ ] Before each chat message, inject system context:
+- [x] Before each chat message, inject system context:
   - Today's contract status (blocks + completion)
   - Today's activity summary (hours per category)
   - Active goals and their current state
   - Day of week, any upcoming deadlines
-- [ ] Make system context refresh periodically (not just on page load)
+- [x] Make system context refresh periodically (not just on page load)
 
 ### Model selection
 
-- [ ] Wire the model picker button in `LLMInput` to a real dropdown/modal
-- [ ] Fetch available providers and models from `@rttnd/llm` registry (`llm.rettend.me`)
-- [ ] Store user's API keys per provider (already have BYOK encryption + `api_keys` table)
-- [ ] Pass selected provider + model to the ChatAgent (replace hardcoded Llama 2 7B)
-- [ ] ChatAgent resolves the user's API key for the selected provider from Turso
-- [ ] Allow per-conversation model selection (stored in `conversations.modelId` / `modelProviderId`)
-- [ ] Store default model preference in user settings
-- [ ] Show model name in chat header/input area
+- [x] Wire the model picker button in `LLMInput` to a real dropdown/modal
+- [x] Fetch available providers and models from `@rttnd/llm` registry (`llm.rettend.me`)
+- [x] Store user's API keys per provider (already have BYOK encryption + `api_keys` table)
+- [x] Pass selected provider + model to the ChatAgent (replace hardcoded Llama 2 7B)
+- [x] ChatAgent resolves the user's API key for the selected provider from Turso
+- [x] Allow per-conversation model selection (stored in `conversations.modelId` / `modelProviderId`)
+- [x] Store default model preference in user settings
+- [x] Show model name in chat header/input area
 
 ### Conversation management
 
-- [ ] Implement "New chat" button in sidebar (create conversation in Turso, navigate to `/chat/[id]`)
-- [ ] Implement conversation list in sidebar History section (fetch from Turso)
-- [ ] Implement conversation deletion
-- [ ] Auto-generate conversation titles (LLM summarize after first few messages)
-- [ ] Implement the "daily contract" special conversation (auto-created each morning, pinned)
+- [x] Implement "New chat" button in sidebar (create conversation in Turso, navigate to `/chat/[id]`)
+- [x] Implement conversation list in sidebar History section (fetch from Turso)
+- [x] Implement conversation deletion
+- [x] Auto-generate conversation titles (first user prompt heuristic)
+- [x] Implement the "daily contract" special conversation (auto-created each morning, pinned)
 
 ## Phase 7 — Nudges (desktop notifications)
 

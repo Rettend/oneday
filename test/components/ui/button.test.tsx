@@ -1,5 +1,5 @@
-import { render, screen } from '@solidjs/testing-library'
 import { describe, expect, test } from 'bun:test'
+import { render, screen } from '@solidjs/testing-library'
 import { Button } from '~/components/ui/button'
 
 describe('Button', () => {
