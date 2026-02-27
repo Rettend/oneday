@@ -1,4 +1,5 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -9,5 +10,10 @@ export default defineConfig({
   ],
   server: {
     port: 8787,
+  },
+  resolve: {
+    alias: {
+      '~': resolve(__dirname, './src'),
+    },
   },
 })
