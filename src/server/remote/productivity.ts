@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import type { ActivityCategorySummary, ActivityDaySummary, activityEntrySchema, ActivitySession, ActivityWeekSummary, AppTimeEntry, CategoryGroup, ContractSnapshot, DashboardSnapshot, DayBreakdown, GoalSnapshot, RuleMatchField, WeekGroupedSummary, WindowTitleEntry } from '~/lib/productivity'
+import type { ActivityCategorySummary, ActivityDaySummary, activityEntrySchema, ActivitySession, ActivityWeekSummary, AppTimeEntry, CategoryGroup, ContractSnapshot, DashboardSnapshot, DayBreakdown, GoalSnapshot, RuleMatchField, WindowTitleEntry } from '~/lib/productivity'
 import type { SelectActivityLog } from '~/server/db/schema'
 import { action, query } from '@solidjs/router'
 import { and, asc, desc, eq, gte, inArray, lt } from 'drizzle-orm'
@@ -221,10 +221,10 @@ function buildContractProgress(
   }
 }
 
-async function ingestActivityForUser(
-  userId: string,
-  input: z.infer<typeof ingestActivitySchema>,
-): Promise<{ inserted: number }> {
+export const ingestActivity = action(async (raw: z.infer<typeof ingestActivitySchema>) => {
+  'use server'
+  const userId = await requireUserId()
+  const input = ingestActivitySchema.parse(raw)
   const rules = await db.query.CategoryRules.findMany({
     where: eq(CategoryRules.userId, userId),
     orderBy: [desc(CategoryRules.priority), asc(CategoryRules.createdAt)],
@@ -247,7 +247,7 @@ async function ingestActivityForUser(
   await db.insert(ActivityLogs).values(values)
 
   return { inserted: values.length }
-}
+}, 'productivity:activity:ingest')
 
 async function getActivityDayForUser(userId: string, rawDate?: string): Promise<ActivityDaySummary> {
   const date = normalizeDateIso(rawDate)
@@ -387,7 +387,10 @@ function buildGroupedDay(sessions: ActivitySession[]): CategoryGroup[] {
   return groups
 }
 
-async function getActivityWeekGroupedForUser(userId: string, referenceDate?: string): Promise<WeekGroupedSummary> {
+export const getActivityWeekGrouped = query(async (date?: string) => {
+  'use server'
+  const userId = await requireUserId()
+  const referenceDate = date
   const week = getWeekBounds(referenceDate)
   const rangeStart = new Date(`${week.startDate}T00:00:00.000Z`)
   const rangeEnd = new Date(`${week.endExclusiveDate}T00:00:00.000Z`)
@@ -440,9 +443,12 @@ async function getActivityWeekGroupedForUser(userId: string, referenceDate?: str
     weekTotals,
     weekTotalMinutes,
   }
-}
+}, 'productivity:activity:week:grouped')
 
-async function listRulesForUser(userId: string) {
+export const listCategoryRules = query(async () => {
+  'use server'
+  const userId = await requireUserId()
+
   const rows = await db.query.CategoryRules.findMany({
     where: eq(CategoryRules.userId, userId),
     orderBy: [desc(CategoryRules.priority), asc(CategoryRules.createdAt)],
@@ -456,9 +462,13 @@ async function listRulesForUser(userId: string) {
     priority: rule.priority,
     createdAt: (rule.createdAt ?? new Date(0)).toISOString(),
   }))
-}
+}, 'productivity:rules:list')
 
-async function createRuleForUser(userId: string, input: z.infer<typeof createRuleSchema>) {
+export const createCategoryRule = action(async (raw: z.infer<typeof createRuleSchema>) => {
+  'use server'
+  const userId = await requireUserId()
+  const input = createRuleSchema.parse(raw)
+
   const id = uuidV7Base58()
 
   await db.insert(CategoryRules).values({
@@ -477,9 +487,13 @@ async function createRuleForUser(userId: string, input: z.infer<typeof createRul
     category: input.category,
     priority: input.priority,
   }
-}
+}, 'productivity:rules:create')
 
-async function updateActivityCategoryForUser(userId: string, input: z.infer<typeof updateActivityCategorySchema>) {
+export const updateActivityCategory = action(async (raw: z.infer<typeof updateActivityCategorySchema>) => {
+  'use server'
+  const userId = await requireUserId()
+  const input = updateActivityCategorySchema.parse(raw)
+
   await db
     .update(ActivityLogs)
     .set({
@@ -495,7 +509,7 @@ async function updateActivityCategoryForUser(userId: string, input: z.infer<type
   return {
     updated: input.logIds.length,
   }
-}
+}, 'productivity:activity:updateCategory')
 
 async function getContractRecordForDate(userId: string, date: string) {
   return db.query.Contracts.findFirst({
@@ -520,7 +534,11 @@ async function getContractForUser(userId: string, rawDate?: string): Promise<Con
   return buildContractProgress(contract, activity.byCategory)
 }
 
-async function upsertContractForUser(userId: string, input: z.infer<typeof upsertContractSchema>): Promise<ContractSnapshot> {
+export const upsertContract = action(async (raw: z.infer<typeof upsertContractSchema>) => {
+  'use server'
+  const userId = await requireUserId()
+  const input = upsertContractSchema.parse(raw)
+
   const date = normalizeDateIso(input.date)
 
   await db.transaction(async (tx) => {
@@ -567,9 +585,13 @@ async function upsertContractForUser(userId: string, input: z.infer<typeof upser
   if (!snapshot)
     throw new Error('Failed to save contract.')
   return snapshot
-}
+}, 'productivity:contract:upsert')
 
-async function updateContractBlockForUser(userId: string, input: z.infer<typeof updateContractBlockSchema>) {
+export const updateContractBlock = action(async (raw: z.infer<typeof updateContractBlockSchema>) => {
+  'use server'
+  const userId = await requireUserId()
+  const input = updateContractBlockSchema.parse(raw)
+
   const block = await db
     .select({
       blockId: ContractBlocks.id,
@@ -604,7 +626,7 @@ async function updateContractBlockForUser(userId: string, input: z.infer<typeof 
     id: input.id,
     completedMinutes: input.completedMinutes,
   }
-}
+}, 'productivity:contract:block:update')
 
 async function listGoalsForUser(userId: string): Promise<GoalSnapshot[]> {
   const rows = await db.query.Goals.findMany({
@@ -615,7 +637,11 @@ async function listGoalsForUser(userId: string): Promise<GoalSnapshot[]> {
   return rows.map(toResponseGoal)
 }
 
-async function createGoalForUser(userId: string, input: z.infer<typeof createGoalSchema>) {
+export const createGoal = action(async (raw: z.infer<typeof createGoalSchema>) => {
+  'use server'
+  const userId = await requireUserId()
+  const input = createGoalSchema.parse(raw)
+
   const id = uuidV7Base58()
 
   await db.insert(Goals).values({
@@ -634,9 +660,13 @@ async function createGoalForUser(userId: string, input: z.infer<typeof createGoa
     throw new Error('Goal creation failed.')
 
   return toResponseGoal(goal)
-}
+}, 'productivity:goals:create')
 
-async function updateGoalForUser(userId: string, input: z.infer<typeof updateGoalSchema>) {
+export const updateGoal = action(async (raw: z.infer<typeof updateGoalSchema>) => {
+  'use server'
+  const userId = await requireUserId()
+  const input = updateGoalSchema.parse(raw)
+
   const existing = await db.query.Goals.findFirst({
     where: and(eq(Goals.userId, userId), eq(Goals.id, input.id)),
   })
@@ -667,9 +697,12 @@ async function updateGoalForUser(userId: string, input: z.infer<typeof updateGoa
     throw new Error('Goal update failed.')
 
   return toResponseGoal(updated)
-}
+}, 'productivity:goals:update')
 
-async function getDashboardForUser(userId: string, rawDate?: string): Promise<DashboardSnapshot> {
+export const getDashboard = query(async (rawDate?: string) => {
+  'use server'
+  const userId = await requireUserId()
+
   const date = normalizeDateIso(rawDate)
 
   const [activity, goals, contract, weekActivity] = await Promise.all([
@@ -743,15 +776,7 @@ async function getDashboardForUser(userId: string, rawDate?: string): Promise<Da
     totalMinutes: activity.totalMinutes,
     week,
   }
-}
-
-export const ingestActivity = action(async (raw: z.infer<typeof ingestActivitySchema>) => {
-  'use server'
-
-  const userId = await requireUserId()
-  const input = ingestActivitySchema.parse(raw)
-  return ingestActivityForUser(userId, input)
-}, 'productivity:activity:ingest')
+}, 'productivity:dashboard')
 
 export const getActivityDay = query(async (date?: string) => {
   'use server'
@@ -767,29 +792,6 @@ export const getActivityWeek = query(async (date?: string) => {
   return getActivityWeekForUser(userId, date)
 }, 'productivity:activity:week')
 
-export const listCategoryRules = query(async () => {
-  'use server'
-
-  const userId = await requireUserId()
-  return listRulesForUser(userId)
-}, 'productivity:rules:list')
-
-export const createCategoryRule = action(async (raw: z.infer<typeof createRuleSchema>) => {
-  'use server'
-
-  const userId = await requireUserId()
-  const input = createRuleSchema.parse(raw)
-  return createRuleForUser(userId, input)
-}, 'productivity:rules:create')
-
-export const updateActivityCategory = action(async (raw: z.infer<typeof updateActivityCategorySchema>) => {
-  'use server'
-
-  const userId = await requireUserId()
-  const input = updateActivityCategorySchema.parse(raw)
-  return updateActivityCategoryForUser(userId, input)
-}, 'productivity:activity:updateCategory')
-
 export const getTodayContract = query(async (date?: string) => {
   'use server'
 
@@ -797,55 +799,9 @@ export const getTodayContract = query(async (date?: string) => {
   return getContractForUser(userId, date)
 }, 'productivity:contract:today')
 
-export const upsertContract = action(async (raw: z.infer<typeof upsertContractSchema>) => {
-  'use server'
-
-  const userId = await requireUserId()
-  const input = upsertContractSchema.parse(raw)
-  return upsertContractForUser(userId, input)
-}, 'productivity:contract:upsert')
-
-export const updateContractBlock = action(async (raw: z.infer<typeof updateContractBlockSchema>) => {
-  'use server'
-
-  const userId = await requireUserId()
-  const input = updateContractBlockSchema.parse(raw)
-  return updateContractBlockForUser(userId, input)
-}, 'productivity:contract:block:update')
-
 export const listGoals = query(async () => {
   'use server'
 
   const userId = await requireUserId()
   return listGoalsForUser(userId)
 }, 'productivity:goals:list')
-
-export const createGoal = action(async (raw: z.infer<typeof createGoalSchema>) => {
-  'use server'
-
-  const userId = await requireUserId()
-  const input = createGoalSchema.parse(raw)
-  return createGoalForUser(userId, input)
-}, 'productivity:goals:create')
-
-export const updateGoal = action(async (raw: z.infer<typeof updateGoalSchema>) => {
-  'use server'
-
-  const userId = await requireUserId()
-  const input = updateGoalSchema.parse(raw)
-  return updateGoalForUser(userId, input)
-}, 'productivity:goals:update')
-
-export const getDashboard = query(async (date?: string) => {
-  'use server'
-
-  const userId = await requireUserId()
-  return getDashboardForUser(userId, date)
-}, 'productivity:dashboard')
-
-export const getActivityWeekGrouped = query(async (date?: string) => {
-  'use server'
-
-  const userId = await requireUserId()
-  return getActivityWeekGroupedForUser(userId, date)
-}, 'productivity:activity:week:grouped')
