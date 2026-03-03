@@ -10,5 +10,5 @@ export default antfu({
     'curly': ['warn', 'multi-or-nest', 'consistent'],
     'style/jsx-one-expression-per-line': ['warn', { allow: 'single-line' }],
   },
-  ignores: ['**/src/router.ts'],
+  ignores: ['**/src/router.ts', '**/src-tauri'],
 })

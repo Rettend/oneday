@@ -1,5 +1,5 @@
-import { cloudflare } from '@cloudflare/vite-plugin'
 import { resolve } from 'node:path'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { defineConfig } from 'vite'
 
 export default defineConfig({

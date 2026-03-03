@@ -16,13 +16,17 @@
         "@openrouter/ai-sdk-provider": "^2.0.2",
         "@rttnd/agents": "^0.3.8",
         "@rttnd/ai-chat": "^0.0.5",
-        "@rttnd/gau": "^1.3.1",
+        "@rttnd/gau": "^1.4.2",
         "@rttnd/llm": "^1.3.0",
         "@solid-primitives/scheduled": "^1.5.2",
         "@solid-primitives/storage": "^4.3.3",
         "@solidjs/meta": "^0.29.4",
         "@solidjs/router": "^0.15.4",
         "@solidjs/start": "^1.2.1",
+        "@tauri-apps/api": "^2.10.1",
+        "@tauri-apps/plugin-deep-link": "~2",
+        "@tauri-apps/plugin-notification": "^2.3.3",
+        "@tauri-apps/plugin-opener": "~2",
         "ai": "catalog:prod",
         "bs58": "^6.0.0",
         "class-variance-authority": "^0.7.1",
@@ -44,6 +48,7 @@
         "@iconify/utils": "catalog:dev",
         "@rttnd/unocss-preset-shadcn": "^1.0.1",
         "@solidjs/testing-library": "^0.8.10",
+        "@tauri-apps/cli": "^2.10.0",
         "@testing-library/jest-dom": "^6.9.1",
         "@types/bun": "^1.3.9",
         "@types/node": "catalog:dev",
@@ -603,7 +608,7 @@
 
     "@rttnd/ai-chat": ["@rttnd/ai-chat@0.0.5", "", { "peerDependencies": { "@rttnd/agents": "^0.3.4", "ai": "^6.0.0", "react": "^19.0.0", "solid-js": "^1.8.0", "zod": "^3.25.0 || ^4.0.0" } }, "sha512-mi7v+WU5j83Xda02Ss4hY4eOCOFpPspXC77aBgYU70gYlTtsmTlqVf9ZwSExGsbEy+saedN7on2h2CxPgrlYlw=="],
 
-    "@rttnd/gau": ["@rttnd/gau@1.3.1", "", { "dependencies": { "@oslojs/jwt": "^0.3.0", "arctic": "^3.7.0", "cookie": "^1.1.1", "esm-env": "^1.2.2" }, "peerDependencies": { "@solidjs/router": "^0.15.3", "@sveltejs/kit": "^2.25.1", "@tauri-apps/api": "^2.6.0", "@tauri-apps/plugin-opener": "^2.3.0", "@tauri-apps/plugin-shell": "^2.3.0", "drizzle-orm": "^0.44.3", "solid-js": "^1.9.7", "svelte": "^5.41.1", "typescript": "^5.8.3" }, "optionalPeers": ["@solidjs/router", "@sveltejs/kit", "@tauri-apps/api", "@tauri-apps/plugin-opener", "@tauri-apps/plugin-shell", "drizzle-orm", "solid-js", "svelte", "typescript"], "bin": { "gau": "dist/src/cli/index.js" } }, "sha512-gagrEPGsG/OjHo8fbMoNn0qQOT7zdu0pqdxS2D5pphAhuKSRe64nouzmcdRULTPuSTLOQV8pMeG5Po7GNizfTA=="],
+    "@rttnd/gau": ["@rttnd/gau@1.4.2", "", { "dependencies": { "@oslojs/jwt": "^0.3.0", "arctic": "^3.7.0", "cookie": "^1.1.1", "esm-env": "^1.2.2" }, "peerDependencies": { "@solidjs/router": "^0.15.3", "@sveltejs/kit": "^2.25.1", "@tauri-apps/api": "^2.6.0", "@tauri-apps/plugin-opener": "^2.3.0", "@tauri-apps/plugin-shell": "^2.3.0", "drizzle-orm": "^0.44.3", "solid-js": "^1.9.7", "svelte": "^5.41.1", "typescript": "^5.8.3" }, "optionalPeers": ["@solidjs/router", "@sveltejs/kit", "@tauri-apps/api", "@tauri-apps/plugin-opener", "@tauri-apps/plugin-shell", "drizzle-orm", "solid-js", "svelte", "typescript"], "bin": { "gau": "dist/src/cli/index.js" } }, "sha512-UKzBv9lLLa2+0+jo0WwcAswDvatYx4N9c1L8ApbrG1uaca7SJSRrf4k7zHhyGHjhtbwgnSyYvdaKg6PxmmYx1A=="],
 
     "@rttnd/llm": ["@rttnd/llm@1.3.0", "", { "dependencies": { "@elysiajs/eden": "^1.4.4", "@rttnd/llm-shared": "^1.3.0", "unstorage": "^1.17.2" } }, "sha512-ELqVNlqG9Yei4rioKF6aFvLjW4FUAXq+wSKkOw9yBwnFRW5V9ofiy6jqle0JqKB/OjenKW8BkpU9MzWinvW8TQ=="],
 
@@ -680,6 +685,38 @@
     "@tanstack/router-utils": ["@tanstack/router-utils@1.133.19", "", { "dependencies": { "@babel/core": "^7.27.4", "@babel/generator": "^7.27.5", "@babel/parser": "^7.27.5", "@babel/preset-typescript": "^7.27.1", "ansis": "^4.1.0", "diff": "^8.0.2", "pathe": "^2.0.3", "tinyglobby": "^0.2.15" } }, "sha512-WEp5D2gPxvlLDRXwD/fV7RXjYtqaqJNXKB/L6OyZEbT+9BG/Ib2d7oG9GSUZNNMGPGYAlhBUOi3xutySsk6rxA=="],
 
     "@tanstack/server-functions-plugin": ["@tanstack/server-functions-plugin@1.121.21", "", { "dependencies": { "@babel/code-frame": "7.26.2", "@babel/core": "^7.26.8", "@babel/plugin-syntax-jsx": "^7.25.9", "@babel/plugin-syntax-typescript": "^7.25.9", "@babel/template": "^7.26.8", "@babel/traverse": "^7.26.8", "@babel/types": "^7.26.8", "@tanstack/directive-functions-plugin": "1.121.21", "babel-dead-code-elimination": "^1.0.9", "tiny-invariant": "^1.3.3" } }, "sha512-a05fzK+jBGacsSAc1vE8an7lpBh4H0PyIEcivtEyHLomgSeElAJxm9E2It/0nYRZ5Lh23m0okbhzJNaYWZpAOg=="],
+
+    "@tauri-apps/api": ["@tauri-apps/api@2.10.1", "", {}, "sha512-hKL/jWf293UDSUN09rR69hrToyIXBb8CjGaWC7gfinvnQrBVvnLr08FeFi38gxtugAVyVcTa5/FD/Xnkb1siBw=="],
+
+    "@tauri-apps/cli": ["@tauri-apps/cli@2.10.0", "", { "optionalDependencies": { "@tauri-apps/cli-darwin-arm64": "2.10.0", "@tauri-apps/cli-darwin-x64": "2.10.0", "@tauri-apps/cli-linux-arm-gnueabihf": "2.10.0", "@tauri-apps/cli-linux-arm64-gnu": "2.10.0", "@tauri-apps/cli-linux-arm64-musl": "2.10.0", "@tauri-apps/cli-linux-riscv64-gnu": "2.10.0", "@tauri-apps/cli-linux-x64-gnu": "2.10.0", "@tauri-apps/cli-linux-x64-musl": "2.10.0", "@tauri-apps/cli-win32-arm64-msvc": "2.10.0", "@tauri-apps/cli-win32-ia32-msvc": "2.10.0", "@tauri-apps/cli-win32-x64-msvc": "2.10.0" }, "bin": { "tauri": "tauri.js" } }, "sha512-ZwT0T+7bw4+DPCSWzmviwq5XbXlM0cNoleDKOYPFYqcZqeKY31KlpoMW/MOON/tOFBPgi31a2v3w9gliqwL2+Q=="],
+
+    "@tauri-apps/cli-darwin-arm64": ["@tauri-apps/cli-darwin-arm64@2.10.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-avqHD4HRjrMamE/7R/kzJPcAJnZs0IIS+1nkDP5b+TNBn3py7N2aIo9LIpy+VQq0AkN8G5dDpZtOOBkmWt/zjA=="],
+
+    "@tauri-apps/cli-darwin-x64": ["@tauri-apps/cli-darwin-x64@2.10.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-keDmlvJRStzVFjZTd0xYkBONLtgBC9eMTpmXnBXzsHuawV2q9PvDo2x6D5mhuoMVrJ9QWjgaPKBBCFks4dK71Q=="],
+
+    "@tauri-apps/cli-linux-arm-gnueabihf": ["@tauri-apps/cli-linux-arm-gnueabihf@2.10.0", "", { "os": "linux", "cpu": "arm" }, "sha512-e5u0VfLZsMAC9iHaOEANumgl6lfnJx0Dtjkd8IJpysZ8jp0tJ6wrIkto2OzQgzcYyRCKgX72aKE0PFgZputA8g=="],
+
+    "@tauri-apps/cli-linux-arm64-gnu": ["@tauri-apps/cli-linux-arm64-gnu@2.10.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-YrYYk2dfmBs5m+OIMCrb+JH/oo+4FtlpcrTCgiFYc7vcs6m3QDd1TTyWu0u01ewsCtK2kOdluhr/zKku+KP7HA=="],
+
+    "@tauri-apps/cli-linux-arm64-musl": ["@tauri-apps/cli-linux-arm64-musl@2.10.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-GUoPdVJmrJRIXFfW3Rkt+eGK9ygOdyISACZfC/bCSfOnGt8kNdQIQr5WRH9QUaTVFIwxMlQyV3m+yXYP+xhSVA=="],
+
+    "@tauri-apps/cli-linux-riscv64-gnu": ["@tauri-apps/cli-linux-riscv64-gnu@2.10.0", "", { "os": "linux", "cpu": "none" }, "sha512-JO7s3TlSxshwsoKNCDkyvsx5gw2QAs/Y2GbR5UE2d5kkU138ATKoPOtxn8G1fFT1aDW4LH0rYAAfBpGkDyJJnw=="],
+
+    "@tauri-apps/cli-linux-x64-gnu": ["@tauri-apps/cli-linux-x64-gnu@2.10.0", "", { "os": "linux", "cpu": "x64" }, "sha512-Uvh4SUUp4A6DVRSMWjelww0GnZI3PlVy7VS+DRF5napKuIehVjGl9XD0uKoCoxwAQBLctvipyEK+pDXpJeoHng=="],
+
+    "@tauri-apps/cli-linux-x64-musl": ["@tauri-apps/cli-linux-x64-musl@2.10.0", "", { "os": "linux", "cpu": "x64" }, "sha512-AP0KRK6bJuTpQ8kMNWvhIpKUkQJfcPFeba7QshOQZjJ8wOS6emwTN4K5g/d3AbCMo0RRdnZWwu67MlmtJyxC1Q=="],
+
+    "@tauri-apps/cli-win32-arm64-msvc": ["@tauri-apps/cli-win32-arm64-msvc@2.10.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-97DXVU3dJystrq7W41IX+82JEorLNY+3+ECYxvXWqkq7DBN6FsA08x/EFGE8N/b0LTOui9X2dvpGGoeZKKV08g=="],
+
+    "@tauri-apps/cli-win32-ia32-msvc": ["@tauri-apps/cli-win32-ia32-msvc@2.10.0", "", { "os": "win32", "cpu": "ia32" }, "sha512-EHyQ1iwrWy1CwMalEm9z2a6L5isQ121pe7FcA2xe4VWMJp+GHSDDGvbTv/OPdkt2Lyr7DAZBpZHM6nvlHXEc4A=="],
+
+    "@tauri-apps/cli-win32-x64-msvc": ["@tauri-apps/cli-win32-x64-msvc@2.10.0", "", { "os": "win32", "cpu": "x64" }, "sha512-NTpyQxkpzGmU6ceWBTY2xRIEaS0ZLbVx1HE1zTA3TY/pV3+cPoPPOs+7YScr4IMzXMtOw7tLw5LEXo5oIG3qaQ=="],
+
+    "@tauri-apps/plugin-deep-link": ["@tauri-apps/plugin-deep-link@2.4.7", "", { "dependencies": { "@tauri-apps/api": "^2.10.1" } }, "sha512-K0FQlLM6BoV7Ws2xfkh+Tnwi5VZVdkI4Vw/3AGLSf0Xvu2y86AMBzd9w/SpzKhw9ai2B6ES8di/OoGDCExkOzg=="],
+
+    "@tauri-apps/plugin-notification": ["@tauri-apps/plugin-notification@2.3.3", "", { "dependencies": { "@tauri-apps/api": "^2.8.0" } }, "sha512-Zw+ZH18RJb41G4NrfHgIuofJiymusqN+q8fGUIIV7vyCH+5sSn5coqRv/MWB9qETsUs97vmU045q7OyseCV3Qg=="],
+
+    "@tauri-apps/plugin-opener": ["@tauri-apps/plugin-opener@2.5.3", "", { "dependencies": { "@tauri-apps/api": "^2.8.0" } }, "sha512-CCcUltXMOfUEArbf3db3kCE7Ggy1ExBEBl51Ko2ODJ6GDYHRp1nSNlQm5uNCFY5k7/ufaK5Ib3Du/Zir19IYQQ=="],
 
     "@testing-library/dom": ["@testing-library/dom@10.4.1", "", { "dependencies": { "@babel/code-frame": "^7.10.4", "@babel/runtime": "^7.12.5", "@types/aria-query": "^5.0.1", "aria-query": "5.3.0", "dom-accessibility-api": "^0.5.9", "lz-string": "^1.5.0", "picocolors": "1.1.1", "pretty-format": "^27.0.2" } }, "sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg=="],
 

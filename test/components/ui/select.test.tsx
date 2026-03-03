@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from 'bun:test'
 import { cleanup, fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
+import { afterEach, describe, expect, it } from 'bun:test'
 import {
   Select,
   SelectContent,
@@ -169,7 +169,6 @@ describe('Select Component', () => {
     const trigger = screen.getByTestId('select-trigger')
     fireEvent.click(trigger)
 
-    const listbox = await screen.findByRole('listbox')
     // SelectPrimitive.Content is a parent of listbox.
     expect(document.querySelector('.custom-content')).toBeInTheDocument()
 

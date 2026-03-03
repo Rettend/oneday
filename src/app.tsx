@@ -6,8 +6,10 @@ import { FileRoutes } from '@solidjs/start/router'
 import { createEffect, createMemo, Show, Suspense } from 'solid-js'
 import { CHAT_SEND_EVENT } from '~/components/chat/events'
 import { LLMInput } from '~/components/chat/LLMInput'
+import { DesktopActivityBridge } from '~/components/desktop/DesktopActivityBridge'
 import { AppNavbar } from '~/components/nav/AppNavbar'
 import { ViewTransition } from '~/components/ViewTransition'
+import { clientEnv } from './env/client'
 import { useAuth } from './lib/auth'
 import { RootStoreProvider } from './stores'
 import { useUIStore } from './stores/ui'
@@ -103,6 +105,7 @@ function AppShell(props: { children: any }) {
         )}
       >
         <>
+          <DesktopActivityBridge enabled />
           <AppNavbar />
           <div class={`pb-28 pl-20 pt-6 ${ui.local.sidebarCollapsedLg ? 'lg:pl-20' : 'lg:pl-64'}`}>
             <div class="page-content mx-auto px-4 py-6 container max-w-7xl">
@@ -123,7 +126,7 @@ function AppShell(props: { children: any }) {
 
 export default function App() {
   return (
-    <AuthProvider>
+    <AuthProvider scheme="oneday" baseUrl={clientEnv.VITE_AUTH_BASE_URL}>
       <Router
         root={props => (
           <MetaProvider>

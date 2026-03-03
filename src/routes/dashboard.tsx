@@ -1,7 +1,9 @@
+import type { DesktopActivityEntry } from '~/lib/desktop/activityTracker'
 import { Protected } from '@rttnd/gau/client/solid'
-import { createMemo, createResource, createSignal, For, Show } from 'solid-js'
+import { createEffect, createMemo, createResource, createSignal, For, onCleanup, Show } from 'solid-js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
-import { clampPercentage, formatMinutes, getTodayDateIso } from '~/lib/productivity'
+import { getDesktopCurrentActivity, isDesktopApp } from '~/lib/desktop/activityTracker'
+import { clampPercentage, formatMinutes, getTodayDateIso, POLL_INTERVAL_SECONDS } from '~/lib/productivity'
 import { getDashboard } from '~/server/remote/productivity'
 
 export default Protected(DashboardPage, '/')
@@ -9,6 +11,45 @@ export default Protected(DashboardPage, '/')
 function DashboardPage() {
   const [selectedDate, setSelectedDate] = createSignal(getTodayDateIso())
   const [dashboard] = createResource(selectedDate, date => getDashboard(date))
+  const [desktopLiveActivity, setDesktopLiveActivity] = createSignal<DesktopActivityEntry | null>(null)
+  const desktopMode = isDesktopApp()
+
+  createEffect(() => {
+    if (!desktopMode)
+      return
+
+    let disposed = false
+
+    const refreshDesktopLiveActivity = async () => {
+      const live = await getDesktopCurrentActivity()
+      if (!disposed)
+        setDesktopLiveActivity(live)
+    }
+
+    void refreshDesktopLiveActivity()
+
+    const interval = window.setInterval(() => {
+      void refreshDesktopLiveActivity()
+    }, POLL_INTERVAL_SECONDS * 1000)
+
+    onCleanup(() => {
+      disposed = true
+      window.clearInterval(interval)
+    })
+  })
+
+  const liveActivity = createMemo(() => {
+    const desktopLive = desktopLiveActivity()
+    if (desktopLive) {
+      return {
+        appName: desktopLive.appName,
+        windowTitle: desktopLive.windowTitle,
+        browserUrl: desktopLive.browserUrl,
+      }
+    }
+
+    return dashboard()?.liveActivity
+  })
 
   const statusMessage = createMemo(() => {
     const data = dashboard()
@@ -90,11 +131,15 @@ function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Live activity</CardTitle>
-            <CardDescription>Current app/window from the latest tracker event.</CardDescription>
+            <CardDescription>
+              {desktopMode
+                ? 'Current app/window from the local desktop tracker.'
+                : 'Current app/window from the latest synced tracker event.'}
+            </CardDescription>
           </CardHeader>
           <CardContent class="text-sm space-y-2">
             <Show
-              when={dashboard()?.liveActivity}
+              when={liveActivity()}
               fallback={<p class="text-muted-foreground">No live activity yet for this day.</p>}
             >
               {live => (

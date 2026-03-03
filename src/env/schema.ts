@@ -13,6 +13,10 @@ export const serverScheme = z.object({
 })
 
 export const clientScheme = z.object({
+  VITE_AUTH_BASE_URL: z.preprocess(
+    value => typeof value === 'string' && value.trim() === '' ? undefined : value,
+    z.string().url().optional(),
+  ),
 })
 
 export function parseEnv<T extends z.ZodTypeAny>(

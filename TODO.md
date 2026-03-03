@@ -60,14 +60,16 @@
 
 ### Initial setup
 
-- [ ] Initialize Tauri v2 in the project (`src-tauri/` directory)
-- [ ] Configure Tauri to use SolidStart's dev server URL during development
-- [ ] Configure Tauri to use the built SPA output for production builds
-- [ ] Set up the `tauri dev` and `tauri build` npm scripts
-- [ ] Add the required Tauri plugins to `src-tauri/Cargo.toml`:
+- [x] Initialize Tauri v2 in the project (`src-tauri/` directory)
+- [x] Configure Tauri to use SolidStart's dev server URL during development
+- [x] Configure Tauri to use the built SPA output for production builds
+- [x] Set up the `tauri dev` and `tauri build` npm scripts
+- [x] Add the required Tauri plugins to `src-tauri/Cargo.toml`:
   - `tauri-plugin-notification` for desktop notifications
   - `x-win` for active window polling
-- [ ] Configure Tauri capabilities/permissions for notifications and system access
+- [x] Configure Tauri capabilities/permissions for notifications and system access
+- [x] Configure Gau + Tauri auth bridge (opener + deep-link plugins, custom URL scheme, deep-link event forwarding)
+- [x] Configure auth runtime for Tauri (`AuthProvider` scheme + backend `trustHosts`)
 
 ### System tray
 
@@ -78,12 +80,12 @@
 
 ### Window polling service
 
-- [ ] Create a Rust background task that polls `x_win::get_active_window()` every 5 seconds
-- [ ] Collect: timestamp, process name, window title
-- [ ] Also call `x_win::get_browser_url()` when the active app is a browser
-- [ ] Buffer entries in-memory (Vec), sync to remote DB every 60 seconds (not every poll — reduces writes from ~17k to ~1,440/day)
-- [ ] Handle offline gracefully: keep buffering, retry on reconnect
-- [ ] Expose a Tauri command so the frontend can query the current active window (for live activity display)
+- [x] Create a Rust background task that polls `x_win::get_active_window()` every 5 seconds
+- [x] Collect: timestamp, process name, window title
+- [x] Also call `x_win::get_browser_url()` when the active app is a browser
+- [x] Buffer entries in-memory (Vec), sync to remote DB every 60 seconds (not every poll — reduces writes from ~17k to ~1,440/day)
+- [x] Handle offline gracefully: keep buffering, retry on reconnect
+- [x] Expose a Tauri command so the frontend can query the current active window (for live activity display)
 - [ ] Add idle detection: if the same window/title persists for X minutes with no input, mark as idle
 
 ## Phase 3 — Database schema for activity and contracts
