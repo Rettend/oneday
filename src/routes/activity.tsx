@@ -1,12 +1,12 @@
 import type { RuleMatchField } from '~/lib/productivity'
 import { Protected } from '@rttnd/gau/client/solid'
-import { useAction } from '@solidjs/router'
-import { createMemo, createResource, createSignal, For, Show } from 'solid-js'
+import { createAsync, revalidate, useAction } from '@solidjs/router'
+import { createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { CATEGORY_OPTIONS, formatMinutes, getTodayDateIso, RULE_MATCH_FIELDS } from '~/lib/productivity'
 import { createCategoryRule, getActivityDay, listCategoryRules, updateActivityCategory } from '~/server/remote/productivity'
 
-export default Protected(ActivityPage, '/')
+const ACTIVITY_REFRESH_MS = 15_000
 
 type ActivitySession = Awaited<ReturnType<typeof getActivityDay>>['sessions'][number]
 
@@ -18,23 +18,64 @@ interface RuleDraft {
   priority: number
 }
 
-export function ActivityPage() {
+function ActivityPage() {
   const [selectedDate, setSelectedDate] = createSignal(getTodayDateIso())
-  const [activity, { refetch: refetchActivity }] = createResource(selectedDate, date => getActivityDay(date))
-  const [rules, { refetch: refetchRules }] = createResource(() => listCategoryRules())
+  const activity = createAsync(() => getActivityDay(selectedDate()))
+  const rules = createAsync(() => listCategoryRules())
   const applyCategory = useAction(updateActivityCategory)
   const createRule = useAction(createCategoryRule)
 
+  const [refreshingActivity, setRefreshingActivity] = createSignal(false)
   const [updatingSessionId, setUpdatingSessionId] = createSignal<string | null>(null)
   const [creatingRule, setCreatingRule] = createSignal(false)
   const [ruleDraft, setRuleDraft] = createSignal<RuleDraft | null>(null)
 
+  const currentActivity = createMemo(() => {
+    const data = activity.latest
+    if (!data || data.date !== selectedDate())
+      return undefined
+    return data
+  })
+
+  const rulesData = createMemo(() => rules.latest)
+
+  async function refetchActivity() {
+    setRefreshingActivity(true)
+
+    try {
+      await revalidate(getActivityDay.keyFor(selectedDate()))
+    }
+    finally {
+      setRefreshingActivity(false)
+    }
+  }
+
+  async function refetchRules() {
+    await revalidate(listCategoryRules.key)
+  }
+
   const maxCategoryMinutes = createMemo(() => {
-    const values = activity()?.byCategory ?? []
+    const values = currentActivity()?.byCategory ?? []
     if (!values.length)
       return 1
 
     return Math.max(...values.map(item => item.minutes), 1)
+  })
+
+  createEffect(() => {
+    if (typeof window === 'undefined')
+      return
+
+    if (selectedDate() !== getTodayDateIso())
+      return
+
+    const interval = window.setInterval(() => {
+      void refetchActivity()
+    }, ACTIVITY_REFRESH_MS)
+
+    onCleanup(() => {
+      window.clearInterval(interval)
+    })
   })
 
   async function handleAssignCategory(session: ActivitySession, category: string) {
@@ -100,15 +141,28 @@ export function ActivityPage() {
               Timeline and category breakdown for what you actually did.
             </p>
           </div>
-          <label class="text-xs text-muted-foreground flex gap-2 items-center">
-            Date
-            <input
-              type="date"
-              value={selectedDate()}
-              class="text-sm px-3 py-1.5 border border-border/70 rounded-full bg-background"
-              onInput={event => setSelectedDate(event.currentTarget.value || getTodayDateIso())}
-            />
-          </label>
+          <div class="flex flex-wrap gap-2 items-center">
+            <label class="text-xs text-muted-foreground flex gap-2 items-center">
+              Date
+              <input
+                type="date"
+                value={selectedDate()}
+                class="text-sm px-3 py-1.5 border border-border/70 rounded-full bg-background"
+                onInput={event => setSelectedDate(event.currentTarget.value || getTodayDateIso())}
+              />
+            </label>
+
+            <button
+              type="button"
+              class="text-xs px-3 py-1.5 border border-border/70 rounded-full transition-colors hover:bg-muted/50"
+              disabled={refreshingActivity()}
+              onClick={() => {
+                void refetchActivity()
+              }}
+            >
+              {refreshingActivity() ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -122,10 +176,14 @@ export function ActivityPage() {
           </CardHeader>
           <CardContent class="space-y-3">
             <Show
-              when={(activity()?.sessions.length ?? 0) > 0}
-              fallback={<p class="text-sm text-muted-foreground">No activity logged for this day yet.</p>}
+              when={(currentActivity()?.sessions.length ?? 0) > 0}
+              fallback={(
+                <p class="text-sm text-muted-foreground">
+                  {currentActivity() ? 'No activity logged for this day yet.' : 'Loading activity...'}
+                </p>
+              )}
             >
-              <For each={activity()?.sessions ?? []}>
+              <For each={currentActivity()?.sessions ?? []}>
                 {session => (
                   <article class="p-3 border border-border/70 rounded-xl bg-card/70 space-y-2">
                     <div class="text-xs text-muted-foreground flex flex-wrap gap-2 items-center justify-between">
@@ -178,15 +236,19 @@ export function ActivityPage() {
           <CardHeader>
             <CardTitle>Today by category</CardTitle>
             <CardDescription>
-              {`Tracked ${formatMinutes(activity()?.totalMinutes ?? 0)} across ${activity()?.sessions.length ?? 0} sessions.`}
+              {`Tracked ${formatMinutes(currentActivity()?.totalMinutes ?? 0)} across ${currentActivity()?.sessions.length ?? 0} sessions.`}
             </CardDescription>
           </CardHeader>
           <CardContent class="text-sm space-y-3">
             <Show
-              when={(activity()?.byCategory.length ?? 0) > 0}
-              fallback={<p class="text-sm text-muted-foreground">No categorized sessions yet.</p>}
+              when={(currentActivity()?.byCategory.length ?? 0) > 0}
+              fallback={
+                <p class="text-sm text-muted-foreground">
+                  {currentActivity() ? 'No categorized sessions yet.' : 'Loading category totals...'}
+                </p>
+              }
             >
-              <For each={activity()?.byCategory ?? []}>
+              <For each={currentActivity()?.byCategory ?? []}>
                 {item => (
                   <CategoryBar
                     label={item.category}
@@ -287,15 +349,17 @@ export function ActivityPage() {
           <CardHeader>
             <CardTitle>Categorization rules</CardTitle>
             <CardDescription>
-              {`${rules()?.length ?? 0} active rule${(rules()?.length ?? 0) === 1 ? '' : 's'}. Use /pattern/flags for regex or plain text for contains.`}
+              {`${rulesData()?.length ?? 0} active rule${(rulesData()?.length ?? 0) === 1 ? '' : 's'}. Use /pattern/flags for regex or plain text for contains.`}
             </CardDescription>
           </CardHeader>
           <CardContent class="space-y-2">
             <Show
-              when={(rules()?.length ?? 0) > 0}
-              fallback={<p class="text-sm text-muted-foreground">No rules yet.</p>}
+              when={(rulesData()?.length ?? 0) > 0}
+              fallback={
+                <p class="text-sm text-muted-foreground">{rulesData() ? 'No rules yet.' : 'Loading rules...'}</p>
+              }
             >
-              <For each={rules() ?? []}>
+              <For each={rulesData() ?? []}>
                 {rule => (
                   <div class="text-xs px-3 py-2 border border-border/70 rounded-lg bg-card/50 flex flex-wrap gap-2 items-center justify-between">
                     <span class="font-mono break-all">{rule.pattern}</span>
@@ -311,6 +375,8 @@ export function ActivityPage() {
     </section>
   )
 }
+
+export default Protected(ActivityPage, '/')
 
 function CategoryBar(props: { label: string, value: string, percentage: number }) {
   return (

@@ -1,4 +1,5 @@
 import type { DesktopActivityEntry } from '~/lib/desktop/activityTracker'
+import { useAction } from '@solidjs/router'
 import { createEffect, onCleanup } from 'solid-js'
 import {
   acknowledgeDesktopPendingActivity,
@@ -12,6 +13,8 @@ const SYNC_INTERVAL_MS = 60_000
 const SYNC_BATCH_SIZE = 500
 
 export function DesktopActivityBridge(props: { enabled: boolean }) {
+  const ingestActivityAction = useAction(ingestActivity)
+
   createEffect(() => {
     if (!props.enabled || !isDesktopApp())
       return
@@ -30,7 +33,7 @@ export function DesktopActivityBridge(props: { enabled: boolean }) {
         if (!pending.length)
           return
 
-        await ingestActivity({
+        await ingestActivityAction({
           entries: pending.map(toIngestEntry),
         })
 
