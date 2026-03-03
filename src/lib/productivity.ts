@@ -155,6 +155,39 @@ export interface GoalSnapshot {
   updatedAt: string
 }
 
+export interface WindowTitleEntry {
+  title: string
+  browserUrl: string | null
+  minutes: number
+}
+
+export interface AppTimeEntry {
+  appName: string
+  totalMinutes: number
+  windowTitles: WindowTitleEntry[]
+}
+
+export interface CategoryGroup {
+  category: string
+  totalMinutes: number
+  apps: AppTimeEntry[]
+}
+
+export interface DayBreakdown {
+  date: string
+  totalMinutes: number
+  byCategory: ActivityCategorySummary[]
+  groups: CategoryGroup[]
+}
+
+export interface WeekGroupedSummary {
+  startDate: string
+  endDate: string
+  days: DayBreakdown[]
+  weekTotals: ActivityCategorySummary[]
+  weekTotalMinutes: number
+}
+
 export interface DashboardSnapshot {
   date: string
   statusLight: 'green' | 'red'
@@ -165,12 +198,13 @@ export interface DashboardSnapshot {
   }>
   contract: ContractSnapshot | null
   goals: GoalSnapshot[]
+  byCategory: ActivityCategorySummary[]
+  totalMinutes: number
   week: Array<{
     date: string
     status: 'free' | 'complete' | 'incomplete'
     totalMinutes: number
   }>
-  liveActivity: ActivityDaySummary['latest']
 }
 
 export function getTodayDateIso(): string {

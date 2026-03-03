@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import { afterEach, describe, expect, it } from 'bun:test'
+import { cleanup, fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import {
   Select,
   SelectContent,

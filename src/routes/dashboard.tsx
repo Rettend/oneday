@@ -1,55 +1,15 @@
-import type { DesktopActivityEntry } from '~/lib/desktop/activityTracker'
 import { Protected } from '@rttnd/gau/client/solid'
-import { createEffect, createMemo, createResource, createSignal, For, onCleanup, Show } from 'solid-js'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
-import { getDesktopCurrentActivity, isDesktopApp } from '~/lib/desktop/activityTracker'
-import { clampPercentage, formatMinutes, getTodayDateIso, POLL_INTERVAL_SECONDS } from '~/lib/productivity'
+import { createMemo, createResource, For, Show } from 'solid-js'
+import { CategoryBar, ProgressRow } from '~/components/productivity/shared'
+import { getCategoryColor, getCategoryIcon } from '~/lib/categories'
+import { clampPercentage, formatMinutes, getTodayDateIso } from '~/lib/productivity'
+import { A } from '~/router'
 import { getDashboard } from '~/server/remote/productivity'
 
 export default Protected(DashboardPage, '/')
 
 function DashboardPage() {
-  const [selectedDate, setSelectedDate] = createSignal(getTodayDateIso())
-  const [dashboard] = createResource(selectedDate, date => getDashboard(date))
-  const [desktopLiveActivity, setDesktopLiveActivity] = createSignal<DesktopActivityEntry | null>(null)
-  const desktopMode = isDesktopApp()
-
-  createEffect(() => {
-    if (!desktopMode)
-      return
-
-    let disposed = false
-
-    const refreshDesktopLiveActivity = async () => {
-      const live = await getDesktopCurrentActivity()
-      if (!disposed)
-        setDesktopLiveActivity(live)
-    }
-
-    void refreshDesktopLiveActivity()
-
-    const interval = window.setInterval(() => {
-      void refreshDesktopLiveActivity()
-    }, POLL_INTERVAL_SECONDS * 1000)
-
-    onCleanup(() => {
-      disposed = true
-      window.clearInterval(interval)
-    })
-  })
-
-  const liveActivity = createMemo(() => {
-    const desktopLive = desktopLiveActivity()
-    if (desktopLive) {
-      return {
-        appName: desktopLive.appName,
-        windowTitle: desktopLive.windowTitle,
-        browserUrl: desktopLive.browserUrl,
-      }
-    }
-
-    return dashboard()?.liveActivity
-  })
+  const [dashboard] = createResource(() => getTodayDateIso(), date => getDashboard(date))
 
   const statusMessage = createMemo(() => {
     const data = dashboard()
@@ -64,193 +24,192 @@ function DashboardPage() {
     }
 
     return data.remaining
-      .map(item => `${formatMinutes(item.minutes)} ${item.label.toLowerCase()} left`)
-      .join(', ')
+      .map(item => `${formatMinutes(item.minutes)} ${item.label.toLowerCase()}`)
+      .join(' · ')
   })
 
-  return (
-    <section class="flex flex-col gap-6">
-      <header class="flex flex-wrap gap-3 items-center justify-between">
-        <div class="space-y-2">
-          <h1 class="text-3xl tracking-tight font-semibold">Dashboard</h1>
-          <p class="text-sm text-muted-foreground">
-            One view for your day: contract status, goals, and where your time is going.
-          </p>
-        </div>
+  const overallProgress = createMemo(() => {
+    const blocks = dashboard()?.contract?.blocks ?? []
+    if (!blocks.length)
+      return 100
 
-        <label class="text-xs text-muted-foreground flex gap-2 items-center">
-          Date
-          <input
-            type="date"
-            value={selectedDate()}
-            class="text-sm px-3 py-1.5 border border-border/70 rounded-full bg-background"
-            onInput={event => setSelectedDate(event.currentTarget.value || getTodayDateIso())}
-          />
-        </label>
+    const totalTarget = blocks.reduce((sum, b) => sum + b.targetMinutes, 0)
+    const totalDone = blocks.reduce((sum, b) => sum + b.completedMinutes, 0)
+    if (totalTarget <= 0)
+      return 100
+    return clampPercentage(Math.round((totalDone / totalTarget) * 100))
+  })
+
+  const todayLabel = () => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  }
+
+  return (
+    <section class="flex flex-col gap-6 max-w-4xl">
+      {/* Header */}
+      <header class="flex flex-wrap gap-3 items-end justify-between">
+        <h1 class="text-3xl tracking-tight font-semibold">Dashboard</h1>
+        <span class="text-sm text-muted-foreground">{todayLabel()}</span>
       </header>
 
-      <Card class="border-primary/30 bg-primary/8">
-        <CardHeader class="pb-3">
-          <CardTitle class="text-xl flex gap-3 items-center">
-            <span
-              class={`rounded-full size-6 shadow-[0_0_24px_rgba(0,0,0,0.35)] ${dashboard()?.statusLight === 'green' ? 'bg-emerald-400 shadow-emerald-400/60' : 'bg-rose-400 shadow-rose-400/60'}`}
-            />
-            {dashboard()?.statusLight === 'green' ? 'You are free' : 'Contract incomplete'}
-          </CardTitle>
-          <CardDescription>
-            {statusMessage()}
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      {/* Status Hero */}
+      <div
+        class="p-6 border rounded-2xl space-y-4"
+        classList={{
+          'border-emerald-500/30 bg-emerald-500/5': dashboard()?.statusLight === 'green',
+          'border-rose-500/30 bg-rose-500/5': dashboard()?.statusLight !== 'green',
+        }}
+      >
+        <div class="flex gap-4 items-center">
+          <div
+            class="rounded-full shrink-0 size-8"
+            classList={{
+              'bg-emerald-400 shadow-[0_0_28px_rgba(52,211,153,0.5)]': dashboard()?.statusLight === 'green',
+              'bg-rose-400 shadow-[0_0_28px_rgba(251,113,133,0.5)]': dashboard()?.statusLight !== 'green',
+            }}
+          />
+          <div class="min-w-0">
+            <h2 class="text-xl font-semibold">
+              {dashboard()?.statusLight === 'green' ? 'You are free' : 'Contract incomplete'}
+            </h2>
+            <p class="text-sm text-muted-foreground">{statusMessage()}</p>
+          </div>
+        </div>
 
-      <div class="gap-4 grid md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Today's contract</CardTitle>
-            <CardDescription>Blocks with auto-progress from activity categories.</CardDescription>
-          </CardHeader>
-          <CardContent class="space-y-3">
-            <Show
-              when={(dashboard()?.contract?.blocks.length ?? 0) > 0}
-              fallback={<p class="text-sm text-muted-foreground">No contract blocks yet for this day.</p>}
-            >
-              <For each={dashboard()?.contract?.blocks ?? []}>
-                {block => (
-                  <ContractRow
-                    label={block.label}
-                    progress={`${formatMinutes(block.completedMinutes)} / ${formatMinutes(block.targetMinutes)}`}
-                    percentage={clampPercentage(block.progressPercent)}
-                    done={block.done}
-                  />
-                )}
-              </For>
-            </Show>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Live activity</CardTitle>
-            <CardDescription>
-              {desktopMode
-                ? 'Current app/window from the local desktop tracker.'
-                : 'Current app/window from the latest synced tracker event.'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent class="text-sm space-y-2">
-            <Show
-              when={liveActivity()}
-              fallback={<p class="text-muted-foreground">No live activity yet for this day.</p>}
-            >
-              {live => (
-                <>
-                  <p class="text-muted-foreground">Latest activity</p>
-                  <p>
-                    <span class="font-medium">{live().appName}</span>
-                    {' - '}
-                    {live().windowTitle}
-                  </p>
-                  <Show when={live().browserUrl}>
-                    <p class="text-xs text-muted-foreground break-all">{live().browserUrl}</p>
-                  </Show>
-                </>
-              )}
-            </Show>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Goal trackers</CardTitle>
-            <CardDescription>LLM-managed counters and countdowns.</CardDescription>
-          </CardHeader>
-          <CardContent class="text-sm space-y-2">
-            <Show
-              when={(dashboard()?.goals.length ?? 0) > 0}
-              fallback={<p class="text-muted-foreground">No active goals yet.</p>}
-            >
-              <For each={dashboard()?.goals ?? []}>
-                {goal => (
-                  <GoalRow
-                    label={goal.name}
-                    value={goalValue(goal.type, goal.metadata)}
-                    progress={goalProgress(goal.type, goal.metadata)}
-                  />
-                )}
-              </For>
-            </Show>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>This week</CardTitle>
-            <CardDescription>Daily status snapshot.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="text-xs gap-2 grid grid-cols-7">
-              <For each={dashboard()?.week ?? []}>
-                {day => (
-                  <WeekDay label={dayLabel(day.date)} status={day.status} minutes={day.totalMinutes} />
-                )}
-              </For>
+        {/* Overall progress bar */}
+        <Show when={dashboard()?.contract}>
+          <div class="space-y-1.5">
+            <div class="rounded-full bg-muted/50 h-3 w-full overflow-hidden">
+              <div
+                class="rounded-full h-full transition-all duration-700"
+                classList={{
+                  'bg-emerald-400': dashboard()?.statusLight === 'green',
+                  'bg-rose-400': dashboard()?.statusLight !== 'green',
+                }}
+                style={{ width: `${overallProgress()}%` }}
+              />
             </div>
-          </CardContent>
-        </Card>
+            <p class="text-xs text-muted-foreground text-right">{overallProgress()}% complete</p>
+          </div>
+        </Show>
       </div>
+
+      {/* Contract Blocks */}
+      <Show when={dashboard()?.contract}>
+        <div class="space-y-3">
+          <h3 class="text-sm text-muted-foreground tracking-wider font-medium uppercase">Contract</h3>
+          <div class="space-y-2.5">
+            <For each={dashboard()?.contract?.blocks ?? []}>
+              {block => (
+                <ProgressRow
+                  label={block.label}
+                  value={`${formatMinutes(block.completedMinutes)} / ${formatMinutes(block.targetMinutes)}`}
+                  percentage={clampPercentage(block.progressPercent)}
+                  done={block.done}
+                  icon={getCategoryIcon(block.category)}
+                  iconColor={getCategoryColor(block.category)}
+                />
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
+
+      {/* Today's Time */}
+      <A href="/activity" class="group block">
+        <div class="p-5 border border-border/60 rounded-2xl transition-colors space-y-3 group-hover:border-primary/30">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm text-muted-foreground tracking-wider font-medium uppercase">Today's time</h3>
+            <span class="text-xs text-muted-foreground">
+              {formatMinutes(dashboard()?.totalMinutes ?? 0)}
+              {' '}
+              tracked
+              <span class="i-ph-arrow-right-duotone text-primary ml-1 opacity-0 size-3.5 transition-opacity group-hover:opacity-100" />
+            </span>
+          </div>
+          <Show
+            when={(dashboard()?.byCategory.length ?? 0) > 0}
+            fallback={<p class="text-sm text-muted-foreground">No activity tracked yet today.</p>}
+          >
+            <CategoryBar
+              categories={dashboard()?.byCategory ?? []}
+              totalMinutes={dashboard()?.totalMinutes ?? 0}
+            />
+          </Show>
+        </div>
+      </A>
+
+      {/* This Week */}
+      <div class="space-y-3">
+        <h3 class="text-sm text-muted-foreground tracking-wider font-medium uppercase">This week</h3>
+        <div class="gap-2 grid grid-cols-7">
+          <For each={dashboard()?.week ?? []}>
+            {day => <WeekDayCell date={day.date} status={day.status} minutes={day.totalMinutes} />}
+          </For>
+        </div>
+      </div>
+
+      {/* Goals */}
+      <Show when={(dashboard()?.goals.length ?? 0) > 0}>
+        <div class="space-y-3">
+          <h3 class="text-sm text-muted-foreground tracking-wider font-medium uppercase">Goals</h3>
+          <div class="space-y-2.5">
+            <For each={dashboard()?.goals ?? []}>
+              {goal => (
+                <ProgressRow
+                  label={goal.name}
+                  value={goalValue(goal.type, goal.metadata)}
+                  percentage={goalProgress(goal.type, goal.metadata) ?? undefined}
+                  icon="i-ph-target-duotone"
+                  iconColor="oklch(var(--primary))"
+                />
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
     </section>
   )
 }
 
-function ContractRow(props: { label: string, progress: string, percentage: number, done: boolean }) {
-  return (
-    <div class="space-y-1.5">
-      <div class="text-sm flex items-center justify-between">
-        <span class="flex gap-1.5 items-center">
-          <span class={`rounded-full size-2.5 ${props.done ? 'bg-emerald-400' : 'bg-rose-400'}`} />
-          {props.label}
-        </span>
-        <span class="text-xs text-muted-foreground">{props.progress}</span>
-      </div>
-      <div class="rounded-full bg-muted h-2 w-full overflow-hidden">
-        <div class="rounded-full bg-primary h-full" style={{ width: `${props.percentage}%` }} />
-      </div>
-    </div>
-  )
-}
+function WeekDayCell(props: { date: string, status: 'free' | 'complete' | 'incomplete', minutes: number }) {
+  const label = () => {
+    return new Date(`${props.date}T00:00:00.000Z`).toLocaleDateString([], {
+      weekday: 'short',
+      timeZone: 'UTC',
+    })
+  }
 
-function GoalRow(props: { label: string, value: string, progress: number | null }) {
-  return (
-    <div class="space-y-1">
-      <div class="text-sm flex items-center justify-between">
-        <span class="text-muted-foreground">{props.label}</span>
-        <span class="font-medium">{props.value}</span>
-      </div>
-      <Show when={props.progress !== null}>
-        <div class="rounded-full bg-muted h-1.5 w-full overflow-hidden">
-          <div
-            class="rounded-full bg-primary/80 h-full"
-            style={{ width: `${clampPercentage(props.progress ?? 0)}%` }}
-          />
-        </div>
-      </Show>
-    </div>
-  )
-}
+  const isToday = () => props.date === getTodayDateIso()
 
-function WeekDay(props: { label: string, status: 'free' | 'complete' | 'incomplete', minutes: number }) {
+  const ringClass = () => {
+    if (props.status === 'complete')
+      return 'bg-emerald-500/15 border-emerald-500/40'
+    if (props.status === 'incomplete')
+      return 'bg-rose-500/10 border-rose-500/30'
+    return 'bg-muted/30 border-border/60'
+  }
+
   const dotClass = () => {
     if (props.status === 'complete')
-      return 'bg-emerald-500'
+      return 'bg-emerald-400'
     if (props.status === 'incomplete')
-      return 'bg-rose-500'
-    return 'bg-sky-400'
+      return 'bg-rose-400'
+    return 'bg-muted-foreground/30'
   }
 
   return (
-    <div class="p-2 border rounded-lg bg-card/70 flex flex-col gap-1 items-center">
+    <div
+      class={`p-2.5 border rounded-xl flex flex-col gap-1 transition-colors items-center ${ringClass()}`}
+      classList={{ 'ring-1 ring-primary/30': isToday() }}
+    >
       <span class={`rounded-full size-2.5 ${dotClass()}`} />
-      <span>{props.label}</span>
+      <span class="text-xs font-medium">{label()}</span>
       <span class="text-10px text-muted-foreground">{formatMinutes(props.minutes)}</span>
     </div>
   )
@@ -265,7 +224,6 @@ function goalValue(type: 'countdown' | 'counter' | 'tracker', metadata: Record<s
     const now = new Date()
     const target = new Date(targetDate)
     const days = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-
     return days <= 0 ? 'Due now' : `${days} days left`
   }
 
@@ -307,11 +265,4 @@ function goalProgress(type: 'countdown' | 'counter' | 'tracker', metadata: Recor
   }
 
   return null
-}
-
-function dayLabel(date: string): string {
-  return new Date(`${date}T00:00:00.000Z`).toLocaleDateString([], {
-    weekday: 'short',
-    timeZone: 'UTC',
-  })
 }

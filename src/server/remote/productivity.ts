@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import type { ActivityCategorySummary, ActivityDaySummary, activityEntrySchema, ActivitySession, ActivityWeekSummary, ContractSnapshot, DashboardSnapshot, GoalSnapshot, RuleMatchField } from '~/lib/productivity'
+import type { ActivityCategorySummary, ActivityDaySummary, activityEntrySchema, ActivitySession, ActivityWeekSummary, AppTimeEntry, CategoryGroup, ContractSnapshot, DashboardSnapshot, DayBreakdown, GoalSnapshot, RuleMatchField, WeekGroupedSummary, WindowTitleEntry } from '~/lib/productivity'
 import type { SelectActivityLog } from '~/server/db/schema'
 import { action, query } from '@solidjs/router'
 import { and, asc, desc, eq, gte, inArray, lt } from 'drizzle-orm'
@@ -330,6 +330,118 @@ async function getActivityWeekForUser(userId: string, referenceDate?: string): P
   }
 }
 
+function buildGroupedDay(sessions: ActivitySession[]): CategoryGroup[] {
+  const categoryMap = new Map<string, Map<string, Map<string, { browserUrl: string | null, minutes: number }>>>()
+
+  for (const session of sessions) {
+    const catKey = normalizeCategoryKey(session.category)
+    if (!categoryMap.has(catKey))
+      categoryMap.set(catKey, new Map())
+
+    const appMap = categoryMap.get(catKey)!
+    if (!appMap.has(session.appName))
+      appMap.set(session.appName, new Map())
+
+    const titleMap = appMap.get(session.appName)!
+    const titleKey = session.windowTitle
+    const existing = titleMap.get(titleKey)
+    if (existing) {
+      existing.minutes += session.durationMinutes
+    }
+    else {
+      titleMap.set(titleKey, {
+        browserUrl: session.browserUrl,
+        minutes: session.durationMinutes,
+      })
+    }
+  }
+
+  const groups: CategoryGroup[] = []
+
+  for (const [category, appMap] of categoryMap) {
+    const apps: AppTimeEntry[] = []
+
+    for (const [appName, titleMap] of appMap) {
+      const windowTitles: WindowTitleEntry[] = []
+      let appTotal = 0
+
+      for (const [title, info] of titleMap) {
+        windowTitles.push({
+          title,
+          browserUrl: info.browserUrl,
+          minutes: info.minutes,
+        })
+        appTotal += info.minutes
+      }
+
+      windowTitles.sort((a, b) => b.minutes - a.minutes)
+      apps.push({ appName, totalMinutes: appTotal, windowTitles })
+    }
+
+    apps.sort((a, b) => b.totalMinutes - a.totalMinutes)
+    const totalMinutes = apps.reduce((sum, app) => sum + app.totalMinutes, 0)
+    groups.push({ category, totalMinutes, apps })
+  }
+
+  groups.sort((a, b) => b.totalMinutes - a.totalMinutes)
+  return groups
+}
+
+async function getActivityWeekGroupedForUser(userId: string, referenceDate?: string): Promise<WeekGroupedSummary> {
+  const week = getWeekBounds(referenceDate)
+  const rangeStart = new Date(`${week.startDate}T00:00:00.000Z`)
+  const rangeEnd = new Date(`${week.endExclusiveDate}T00:00:00.000Z`)
+
+  const logs = await db.query.ActivityLogs.findMany({
+    where: and(
+      eq(ActivityLogs.userId, userId),
+      gte(ActivityLogs.timestamp, rangeStart),
+      lt(ActivityLogs.timestamp, rangeEnd),
+    ),
+    orderBy: asc(ActivityLogs.timestamp),
+  })
+
+  const byDay = new Map<string, SelectActivityLog[]>()
+  for (const log of logs) {
+    const key = toIsoDate(log.timestamp)
+    const list = byDay.get(key)
+    if (list)
+      list.push(log)
+    else
+      byDay.set(key, [log])
+  }
+
+  const weekTotalsMap = new Map<string, number>()
+  let weekTotalMinutes = 0
+
+  const days: DayBreakdown[] = week.days.map((date) => {
+    const dayLogs = byDay.get(date) ?? []
+    const sessions = buildActivitySessions(dayLogs)
+    const byCategory = toCategorySummary(sessions)
+    const groups = buildGroupedDay(sessions)
+    const totalMinutes = byCategory.reduce((total, item) => total + item.minutes, 0)
+
+    for (const item of byCategory)
+      weekTotalsMap.set(item.category, (weekTotalsMap.get(item.category) ?? 0) + item.minutes)
+
+    weekTotalMinutes += totalMinutes
+
+    return { date, totalMinutes, byCategory, groups }
+  })
+
+  const weekTotals: ActivityCategorySummary[] = [...weekTotalsMap.entries()]
+    .map(([category, minutes]) => ({ category, minutes }))
+    .sort((a, b) => b.minutes - a.minutes)
+
+  return {
+    startDate: week.startDate,
+    endDate: week.endDate,
+    days,
+    weekTotals,
+    weekTotalMinutes,
+  }
+}
+
 async function listRulesForUser(userId: string) {
   const rows = await db.query.CategoryRules.findMany({
     where: eq(CategoryRules.userId, userId),
@@ -627,8 +739,9 @@ async function getDashboardForUser(userId: string, rawDate?: string): Promise<Da
     remaining,
     contract,
     goals,
+    byCategory: activity.byCategory,
+    totalMinutes: activity.totalMinutes,
     week,
-    liveActivity: activity.latest,
   }
 }
 
@@ -729,3 +842,10 @@ export const getDashboard = query(async (date?: string) => {
   const userId = await requireUserId()
   return getDashboardForUser(userId, date)
 }, 'productivity:dashboard')
+
+export const getActivityWeekGrouped = query(async (date?: string) => {
+  'use server'
+
+  const userId = await requireUserId()
+  return getActivityWeekGroupedForUser(userId, date)
+}, 'productivity:activity:week:grouped')
